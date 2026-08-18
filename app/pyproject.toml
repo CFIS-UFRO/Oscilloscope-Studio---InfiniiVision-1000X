@@ -1,6 +1,6 @@
 [project]
 name = "oscilloscope-studio"
-version = "0.1.0"
+version = "0.2.0"
 description = "PySide6 GUI for controlling Keysight InfiniiVision 1000 X-Series oscilloscopes"
 requires-python = ">=3.12,<3.13"
 dependencies = [

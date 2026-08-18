@@ -1,3 +1,28 @@
 {
-  "releases": []
+  "releases": [
+    {
+      "version": "0.2.0",
+      "created_at_utc": "2026-08-18T16:34:48.534343+00:00",
+      "changes": [
+        "Initial development release of Oscilloscope Studio",
+        "Added the basic cross-platform PySide6 application structure",
+        "Added launchers for Linux, macOS, and Windows",
+        "Added automatic uv, Python 3.12, and dependency setup",
+        "Added application restart and quit keyboard shortcuts",
+        "Added the Oscilloscope Studio application icon",
+        "Added rotating-file logging",
+        "Added uncaught exception, warning, stdout, and stderr logging",
+        "Added an integrated color-coded terminal",
+        "Added searchable in-app HTML help documentation",
+        "Added contextual help buttons and theme-aware components",
+        "Added automatic update checks through GitHub Releases",
+        "Added secure update installation with SHA-256 verification",
+        "Added release notes and version information dialogs",
+        "Added automated semantic versioning, release packaging, and GitHub publishing",
+        "Added centralized application metadata and filesystem paths",
+        "Added automatic temporary-file cleanup",
+        "Added project setup and execution documentation"
+      ]
+    }
+  ]
 }
