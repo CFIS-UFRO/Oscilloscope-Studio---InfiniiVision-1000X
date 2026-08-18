@@ -1,0 +1,12 @@
+[
+  {
+    "id": "getting-started",
+    "title": "Getting Started",
+    "file": "pages/getting-started.html"
+  },
+  {
+    "id": "terminal",
+    "title": "Terminal",
+    "file": "pages/terminal.html"
+  }
+]

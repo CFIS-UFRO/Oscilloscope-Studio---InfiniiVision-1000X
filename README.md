@@ -2,6 +2,61 @@
 
 Oscilloscope Studio is a graphical application for controlling Keysight InfiniiVision 1000 X-Series oscilloscopes and automating data acquisition.
 
+## Current status
+
+The project currently provides its cross-platform PySide6 application shell, structured logging, integrated terminal, searchable help, and GitHub-based release updates. Instrument communication and acquisition controls will be added in subsequent development.
+
+## Run the application
+
+The launchers install `uv`, Python 3.12, and the project dependencies into the repository on first use. Internet access is required for the initial setup.
+
+### Linux
+
+```bash
+./Linux_Oscilloscope_Studio.sh
+```
+
+### macOS
+
+```bash
+./Mac_Oscilloscope_Studio.command
+```
+
+If macOS blocks a downloaded launcher, enable it with:
+
+```bash
+xattr -dr com.apple.quarantine .
+chmod +x Mac_Oscilloscope_Studio.command
+```
+
+### Windows
+
+Double-click `Windows_Oscilloscope_Studio.bat`, or run it from Command Prompt.
+
+### Developer execution
+
+With `uv` already installed:
+
+```bash
+cd app
+uv run python main.py
+```
+
+## Releases and updates
+
+Updates are distributed through GitHub Releases. To publish a release, run the platform launcher with the `release` argument. The workflow requires Git, push access to the repository, and the GitHub CLI (`gh`).
+
+```bash
+./Linux_Oscilloscope_Studio.sh release
+./Mac_Oscilloscope_Studio.command release
+```
+
+On Windows:
+
+```bat
+Windows_Oscilloscope_Studio.bat release
+```
+
 ## Compatibility
 
 The application is intended to support the entire InfiniiVision 1000 X-Series. At present, however, it has only been tested with the Keysight EDUX1002A shown below. Compatibility with other models has not yet been verified.
