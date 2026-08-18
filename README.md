@@ -2,10 +2,6 @@
 
 Oscilloscope Studio is a graphical application for controlling Keysight InfiniiVision 1000 X-Series oscilloscopes and automating data acquisition.
 
-## Current status
-
-The project currently provides its cross-platform PySide6 application shell, structured logging, integrated terminal, searchable help, and GitHub-based release updates. Instrument communication and acquisition controls will be added in subsequent development.
-
 ## Run the application
 
 The launchers install `uv`, Python 3.12, and the project dependencies into the repository on first use. Internet access is required for the initial setup.
@@ -13,12 +9,16 @@ The launchers install `uv`, Python 3.12, and the project dependencies into the r
 ### Linux
 
 ```bash
+bash Linux_Oscilloscope_Studio.sh
+# Or
 ./Linux_Oscilloscope_Studio.sh
 ```
 
 ### macOS
 
 ```bash
+bash Mac_Oscilloscope_Studio.command
+# Or
 ./Mac_Oscilloscope_Studio.command
 ```
 
@@ -32,30 +32,6 @@ chmod +x Mac_Oscilloscope_Studio.command
 ### Windows
 
 Double-click `Windows_Oscilloscope_Studio.bat`, or run it from Command Prompt.
-
-### Developer execution
-
-With `uv` already installed:
-
-```bash
-cd app
-uv run python main.py
-```
-
-## Releases and updates
-
-Updates are distributed through GitHub Releases. To publish a release, run the platform launcher with the `release` argument. The workflow requires Git, push access to the repository, and the GitHub CLI (`gh`).
-
-```bash
-./Linux_Oscilloscope_Studio.sh release
-./Mac_Oscilloscope_Studio.command release
-```
-
-On Windows:
-
-```bat
-Windows_Oscilloscope_Studio.bat release
-```
 
 ## Compatibility
 
@@ -74,3 +50,29 @@ All instrument communication implemented in this project is based on the command
 ## Disclaimer
 
 Oscilloscope Studio is an independent project and is not an official Keysight product. It is neither affiliated with nor endorsed by Keysight Technologies. The application was developed to meet our laboratory's internal need for automated data acquisition.
+
+## Developers
+
+### Developer execution
+
+With `uv` already installed:
+
+```bash
+cd app
+uv run python main.py
+```
+
+### Releases and updates
+
+Updates are distributed through GitHub Releases. To publish a release, run the platform launcher with the `release` argument. The workflow requires Git, push access to the repository, and the GitHub CLI (`gh`).
+
+```bash
+./Linux_Oscilloscope_Studio.sh release
+./Mac_Oscilloscope_Studio.command release
+```
+
+On Windows:
+
+```bat
+Windows_Oscilloscope_Studio.bat release
+```
