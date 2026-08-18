@@ -8,6 +8,8 @@ The application is intended to support the entire InfiniiVision 1000 X-Series. A
 
 <p align="center">
   <img src="docs/images/keysight-edux1002a.jpg" alt="Keysight EDUX1002A oscilloscope" width="80%">
+  <br>
+  <sub>Image source: <a href="https://www.keysight.com/us/en/support/EDUX1002A/oscilloscope-50-mhz-2-analog-channels.html#drivers">official Keysight EDUX1002A product page</a>.</sub>
 </p>
 
 ## Communication protocol
