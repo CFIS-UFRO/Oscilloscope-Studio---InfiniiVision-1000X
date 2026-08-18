@@ -9,6 +9,7 @@ The launchers install `uv`, Python 3.12, and the project dependencies into the r
 ### Linux
 
 ```bash
+cd /path/to/Oscilloscope-Studio---InfiniiVision-1000X
 bash Linux_Oscilloscope_Studio.sh
 # Or
 ./Linux_Oscilloscope_Studio.sh
@@ -17,6 +18,7 @@ bash Linux_Oscilloscope_Studio.sh
 ### macOS
 
 ```bash
+cd /path/to/Oscilloscope-Studio---InfiniiVision-1000X
 bash Mac_Oscilloscope_Studio.command
 # Or
 ./Mac_Oscilloscope_Studio.command
@@ -25,13 +27,19 @@ bash Mac_Oscilloscope_Studio.command
 If macOS blocks a downloaded launcher, enable it with:
 
 ```bash
+cd /path/to/Oscilloscope-Studio---InfiniiVision-1000X
 xattr -dr com.apple.quarantine .
 chmod +x Mac_Oscilloscope_Studio.command
 ```
 
 ### Windows
 
-Double-click `Windows_Oscilloscope_Studio.bat`, or run it from Command Prompt.
+Double-click `Windows_Oscilloscope_Studio.bat`, or run it from Command Prompt (CMD):
+
+```bat
+cd /d "C:\path\to\Oscilloscope-Studio---InfiniiVision-1000X"
+Windows_Oscilloscope_Studio.bat
+```
 
 ## Compatibility
 
@@ -58,7 +66,7 @@ Oscilloscope Studio is an independent project and is not an official Keysight pr
 With `uv` already installed:
 
 ```bash
-cd app
+cd /path/to/Oscilloscope-Studio---InfiniiVision-1000X/app
 uv run python main.py
 ```
 
