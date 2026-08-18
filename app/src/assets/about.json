@@ -1,0 +1,14 @@
+{
+  "main_developer": {
+    "name": "Bryan Casanelli",
+    "email": "bryancasanelli@gmail.com"
+  },
+  "laboratory": {
+    "name": "Center for Physics and Engineering in Health (CFIS)",
+    "logo": "cfis.png"
+  },
+  "university": {
+    "name": "University of La Frontera",
+    "logo": "ufro.png"
+  }
+}

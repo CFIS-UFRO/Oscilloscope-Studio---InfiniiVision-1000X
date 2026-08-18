@@ -21,6 +21,7 @@ from src.utils.logging import logger
 from src.utils.paths import get_pyproject_file_path
 from src.utils.releases import get_pyproject_version
 from src.widgets.terminal_widget import TerminalWidget
+from src.windows.about_window import AboutWindow
 from src.windows.help_window import HelpWindow
 from src.windows.release_update_window import ReleaseUpdateWindow
 
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._restart_callback = restart_callback
         self._quit_callback = quit_callback
+        self._about_window: AboutWindow | None = None
         self._help_window: HelpWindow | None = None
         self._release_update_window: ReleaseUpdateWindow | None = None
         self._shortcuts: list[QShortcut] = []
@@ -75,6 +77,9 @@ class MainWindow(QMainWindow):
         help_button = QPushButton("Help", central_widget)
         help_button.clicked.connect(self._open_help_window)
         actions_layout.addWidget(help_button)
+        about_button = QPushButton("About", central_widget)
+        about_button.clicked.connect(self._open_about_window)
+        actions_layout.addWidget(about_button)
         actions_layout.addStretch(1)
         layout.addLayout(actions_layout)
         content_splitter = QSplitter(Qt.Orientation.Vertical, central_widget)
@@ -148,6 +153,11 @@ class MainWindow(QMainWindow):
         if self._help_window is None:
             self._help_window = HelpWindow(initial_manual_id="getting-started", parent=self)
         self._help_window.show_window()
+
+    def _open_about_window(self) -> None:
+        if self._about_window is None:
+            self._about_window = AboutWindow(parent=self)
+        self._about_window.show_window()
 
     def _open_release_update_window(self) -> None:
         self._get_release_update_window().check_for_updates()
