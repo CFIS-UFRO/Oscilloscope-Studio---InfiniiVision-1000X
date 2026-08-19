@@ -55,8 +55,8 @@ class MainWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(24, 24, 24, 16)
-        layout.setSpacing(16)
+        layout.setContentsMargins(12, 12, 12, 4)
+        layout.setSpacing(8)
         title_label = QLabel(APP_NAME, central_widget)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-size: 26px; font-weight: 600;")
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(content_splitter, 1)
         version_label = QLabel(f"Version {self._version}", central_widget)
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        version_label.setStyleSheet("font-size: 13px;")
+        version_label.setStyleSheet("font-size: 11px;")
         layout.addWidget(version_label)
 
     def _configure_shortcuts(self) -> None:
