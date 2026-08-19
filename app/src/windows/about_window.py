@@ -2,15 +2,25 @@
 
 import sys
 
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QDialog, QFormLayout, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtCore import QSize, Qt, QUrl
+from PySide6.QtGui import QAction, QDesktopServices, QIcon, QPixmap
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.config import APP_NAME
-from src.utils.about import get_about_info
+from src.utils.about import InstitutionInfo, get_about_info
 from src.utils.colors import is_dark_mode
 from src.utils.logging import logger
-from src.utils.paths import get_logo_file_path
+from src.utils.paths import get_external_link_icon_file_path, get_logo_file_path
 from src.widgets.close_button_widget import CloseButtonWidget
 
 # --------------------------------------------------------------------------------------------------
@@ -50,12 +60,12 @@ class AboutWindow(QDialog):
         # Add the laboratory information
         information_layout.addRow(
             "Laboratory",
-            self._create_value_label(about_info["laboratory"]["name"], word_wrap=False),
+            self._create_institution_widget(about_info["laboratory"]),
         )
         # Add the university information
         information_layout.addRow(
             "University",
-            self._create_value_label(about_info["university"]["name"], word_wrap=False),
+            self._create_institution_widget(about_info["university"]),
         )
         # Attach the information grid
         layout.addLayout(information_layout)
@@ -83,6 +93,45 @@ class AboutWindow(QDialog):
         # Allow users to select and copy the text
         label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         return label
+
+    def _create_institution_widget(self, institution: InstitutionInfo) -> QWidget:
+        # Create a compact row for the institution name and optional link
+        widget = QWidget(self)
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        # Add the institution name
+        layout.addWidget(self._create_value_label(institution["name"], word_wrap=False))
+        # Add the website action when a URL is configured
+        url = institution.get("url")
+        if url:
+            link_button = QPushButton(widget)
+            link_button.setFixedSize(20, 20)
+            link_button.setIconSize(QSize(14, 14))
+            link_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            link_button.setStyleSheet(
+                "QPushButton {"
+                " background: transparent;"
+                " border: none;"
+                "}"
+            )
+            link_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            link_button.setIcon(QIcon(str(get_external_link_icon_file_path(is_dark_mode()))))
+            link_button.setToolTip(url)
+            link_button.setAccessibleName(f"Open {institution['name']} website")
+            link_button.clicked.connect(
+                lambda _checked=False, target_url=url: QDesktopServices.openUrl(QUrl(target_url))
+            )
+            # Add a native right-click action for copying the URL
+            copy_link_action = QAction("Copy link", link_button)
+            copy_link_action.triggered.connect(
+                lambda _checked=False, target_url=url: QApplication.clipboard().setText(target_url)
+            )
+            link_button.addAction(copy_link_action)
+            link_button.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+            layout.addWidget(link_button)
+        layout.addStretch(1)
+        return widget
 
     def _create_logo_label(self, logo_file_name: str) -> QLabel | None:
         # Resolve the logo variant for the active color theme

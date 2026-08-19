@@ -1,7 +1,7 @@
 """About-information loading and validation."""
 
 import json
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from src.utils.paths import get_about_file_path
 
@@ -15,10 +15,11 @@ class DeveloperInfo(TypedDict):
     email: str
 # --------------------------------------------------------------------------------------------------
 class InstitutionInfo(TypedDict):
-    """Institution name and logo file name."""
+    """Institution name, logo file name, and optional website URL."""
 
     name: str
     logo: str
+    url: NotRequired[str]
 # --------------------------------------------------------------------------------------------------
 class AboutInfo(TypedDict):
     """Application authorship and institutional information."""

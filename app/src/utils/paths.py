@@ -30,6 +30,8 @@ ABOUT_FILE_PATH: Path = ASSETS_DIR / "about.json"
 HELP_INDEX_FILE_PATH: Path = HELP_DIR / "index.json"
 HELP_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "help_black.svg"
 HELP_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "help_white.svg"
+EXTERNAL_LINK_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_black.svg"
+EXTERNAL_LINK_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_white.svg"
 
 # --------------------------------------------------------------------------------------------------
 # Getters
@@ -61,6 +63,10 @@ def get_help_index_file_path() -> Path:
 def get_help_icon_file_path(is_dark_mode: bool = False) -> Path:
     """Return the help icon path for the current color theme."""
     return HELP_WHITE_ICON_FILE_PATH if is_dark_mode else HELP_BLACK_ICON_FILE_PATH
+# --------------------------------------------------------------------------------------------------
+def get_external_link_icon_file_path(is_dark_mode: bool = False) -> Path:
+    """Return the external-link icon path for the current color theme."""
+    return EXTERNAL_LINK_WHITE_ICON_FILE_PATH if is_dark_mode else EXTERNAL_LINK_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
 def get_logo_file_path(file_name: str, is_dark_mode: bool = False) -> Path:
     """Return the theme-specific logo path for a base file name."""
