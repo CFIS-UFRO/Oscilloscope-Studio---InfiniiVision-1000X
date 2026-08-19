@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.config import APP_DESCRIPTION, APP_NAME
+from src.config import APP_NAME
 from src.utils.logging import logger
 from src.utils.paths import get_pyproject_file_path
 from src.utils.releases import get_pyproject_version
@@ -61,10 +61,6 @@ class MainWindow(QMainWindow):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-size: 26px; font-weight: 600;")
         layout.addWidget(title_label)
-        description_label = QLabel(APP_DESCRIPTION, central_widget)
-        description_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        description_label.setWordWrap(True)
-        layout.addWidget(description_label)
         separator = QFrame(central_widget)
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
