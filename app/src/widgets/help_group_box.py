@@ -1,4 +1,4 @@
-"""Group-box container with a contextual help header."""
+"""Section container with a contextual help header."""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
@@ -9,13 +9,14 @@ from src.widgets.help_button import HelpButton
 # Widget
 # --------------------------------------------------------------------------------------------------
 class HelpGroupBox(QWidget):
-    """Display a title and help button above an untitled content group box."""
+    """Display a title and help button above a content widget."""
 
     def __init__(
         self,
         title: str,
         manual_id: str,
         parent: QWidget | None = None,
+        with_container: bool = True,
     ) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -33,10 +34,11 @@ class HelpGroupBox(QWidget):
         )
         header_layout.addStretch(1)
         layout.addLayout(header_layout)
-        self._content_group_box = QGroupBox(self)
-        layout.addWidget(self._content_group_box)
+        content_widget_type = QGroupBox if with_container else QWidget
+        self._content_widget = content_widget_type(self)
+        layout.addWidget(self._content_widget)
 
     @property
-    def content_group_box(self) -> QGroupBox:
-        """Return the untitled group box that owns the section content."""
-        return self._content_group_box
+    def content_widget(self) -> QWidget:
+        """Return the widget that owns the section content."""
+        return self._content_widget

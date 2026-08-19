@@ -34,15 +34,20 @@ class TerminalWidget(HelpGroupBox):
     }
 
     def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__("Terminal", "terminal", parent)
+        super().__init__(
+            "Terminal",
+            "terminal",
+            parent,
+            with_container=False,
+        )
         self.setMinimumHeight(self.MINIMUM_HEIGHT)
         self.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
         )
-        layout = QVBoxLayout(self.content_group_box)
-        layout.setContentsMargins(8, 8, 8, 8)
-        self._output = QPlainTextEdit(self.content_group_box)
+        layout = QVBoxLayout(self.content_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self._output = QPlainTextEdit(self.content_widget)
         self._output.setReadOnly(True)
         self._output.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self._output.setFont(
