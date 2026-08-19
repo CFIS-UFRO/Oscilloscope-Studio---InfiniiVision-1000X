@@ -17,6 +17,7 @@ from src.config import APP_NAME
 from src.utils.logging import logger
 from src.utils.paths import get_pyproject_file_path
 from src.utils.releases import get_pyproject_version
+from src.widgets.footer_widget import FooterWidget
 from src.widgets.header_widget import HeaderWidget
 from src.widgets.terminal_widget import TerminalWidget
 from src.windows.about_window import AboutWindow
@@ -89,11 +90,9 @@ class MainWindow(QMainWindow):
         content_splitter.setStretchFactor(1, 0)
         content_splitter.setSizes([1_000, TerminalWidget.INITIAL_HEIGHT])
         layout.addWidget(content_splitter, 1)
-        # Version footer
-        version_label = QLabel(f"Version {self._version}", central_widget)
-        version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        version_label.setStyleSheet("font-size: 11px;")
-        layout.addWidget(version_label)
+        # Application footer
+        self._footer_widget = FooterWidget(self._version, central_widget)
+        layout.addWidget(self._footer_widget)
 
     def _connect_signals(self) -> None:
         # Header actions
