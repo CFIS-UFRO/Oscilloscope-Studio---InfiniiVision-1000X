@@ -57,6 +57,7 @@ class TerminalWidget(HelpGroupBox):
         self._output.setStyleSheet(
             "QPlainTextEdit {"
             "background-color: #000000;"
+            "border-radius: 4px;"
             f"color: {self.DEFAULT_TEXT_COLOR};"
             "selection-background-color: #006600;"
             "selection-color: #ffffff;"
