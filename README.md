@@ -70,6 +70,14 @@ cd /path/to/Oscilloscope-Studio---InfiniiVision-1000X/app
 uv run python main.py
 ```
 
+`main.py` supervises the FastAPI backend and Qt frontend processes. They can also be started
+independently during development:
+
+```bash
+uv run python -m src.backend
+uv run python -m src.frontend
+```
+
 ### Releases and updates
 
 Updates are distributed through GitHub Releases. To publish a release, run the platform launcher with the `release` argument. The workflow requires Git, push access to the repository, and the GitHub CLI (`gh`).

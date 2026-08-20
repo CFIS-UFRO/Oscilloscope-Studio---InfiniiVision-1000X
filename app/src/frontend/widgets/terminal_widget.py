@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.utils.logging import qt_log_handler
-from src.widgets.help_group_box import HelpGroupBox
+from src.frontend.widgets.help_group_box import HelpGroupBox
 
 # --------------------------------------------------------------------------------------------------
 # Widget

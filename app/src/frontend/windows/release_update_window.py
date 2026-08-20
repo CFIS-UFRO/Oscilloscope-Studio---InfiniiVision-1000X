@@ -19,7 +19,7 @@ from src.config import APP_NAME, RESTART_EXIT_CODE
 from src.utils.logging import logger
 from src.utils.paths import get_project_dir_path
 from src.utils.releases import ReleaseUpdate, ReleaseUpdateChecker, install_release_update
-from src.widgets.release_update_details import ReleaseUpdateDetails
+from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 
 # --------------------------------------------------------------------------------------------------
 # Dialog

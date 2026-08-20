@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from src.utils.help import get_help_manuals
 from src.utils.paths import get_help_dir_path
-from src.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
+from src.frontend.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
 
 # --------------------------------------------------------------------------------------------------
 # Item data roles

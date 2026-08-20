@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QPushButton, QSizePolicy, QWidget
 
 from src.utils.colors import is_dark_mode
 from src.utils.paths import get_help_icon_file_path
-from src.windows.help_window import HelpWindow
+from src.frontend.windows.help_window import HelpWindow
 
 # --------------------------------------------------------------------------------------------------
 # Widget

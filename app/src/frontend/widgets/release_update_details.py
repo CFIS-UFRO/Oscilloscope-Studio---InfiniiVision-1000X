@@ -3,7 +3,7 @@
 from PySide6.QtWidgets import QGridLayout, QGroupBox, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from src.utils.releases import ReleaseUpdate, format_release_entries_html
-from src.widgets.html_viewer import HtmlViewer
+from src.frontend.widgets.html_viewer import HtmlViewer
 
 # --------------------------------------------------------------------------------------------------
 # Widget

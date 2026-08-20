@@ -10,7 +10,9 @@ from src.config import APP_SLUG
 APP_DIR: Path = Path(__file__).resolve().parents[2]
 PROJECT_DIR: Path = APP_DIR.parent
 SRC_DIR: Path = APP_DIR / "src"
-ASSETS_DIR: Path = SRC_DIR / "assets"
+BACKEND_DIR: Path = SRC_DIR / "backend"
+FRONTEND_DIR: Path = SRC_DIR / "frontend"
+ASSETS_DIR: Path = FRONTEND_DIR / "assets"
 HELP_DIR: Path = ASSETS_DIR / "help"
 ICONS_DIR: Path = ASSETS_DIR / "icons"
 LOGOS_DIR: Path = ASSETS_DIR / "logos"
@@ -47,6 +49,14 @@ def get_app_dir_path() -> Path:
 def get_src_dir_path() -> Path:
     """Return the source directory."""
     return SRC_DIR
+# --------------------------------------------------------------------------------------------------
+def get_backend_dir_path() -> Path:
+    """Return the backend source directory."""
+    return BACKEND_DIR
+# --------------------------------------------------------------------------------------------------
+def get_frontend_dir_path() -> Path:
+    """Return the frontend source directory."""
+    return FRONTEND_DIR
 # --------------------------------------------------------------------------------------------------
 def get_assets_dir_path() -> Path:
     """Return the assets directory."""

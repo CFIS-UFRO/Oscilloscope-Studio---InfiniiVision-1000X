@@ -1,4 +1,4 @@
-"""Main application window and top-level actions."""
+"""Main frontend window and top-level actions."""
 
 from collections.abc import Callable
 
@@ -17,12 +17,12 @@ from src.config import APP_NAME
 from src.utils.logging import logger
 from src.utils.paths import get_pyproject_file_path
 from src.utils.releases import get_pyproject_version
-from src.widgets.footer_widget import FooterWidget
-from src.widgets.header_widget import HeaderWidget
-from src.widgets.terminal_widget import TerminalWidget
-from src.windows.about_window import AboutWindow
-from src.windows.help_window import HelpWindow
-from src.windows.release_update_window import ReleaseUpdateWindow
+from src.frontend.widgets.footer_widget import FooterWidget
+from src.frontend.widgets.header_widget import HeaderWidget
+from src.frontend.widgets.terminal_widget import TerminalWidget
+from src.frontend.windows.about_window import AboutWindow
+from src.frontend.windows.help_window import HelpWindow
+from src.frontend.windows.release_update_window import ReleaseUpdateWindow
 
 # --------------------------------------------------------------------------------------------------
 # Main window
