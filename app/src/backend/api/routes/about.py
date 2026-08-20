@@ -5,8 +5,7 @@ from typing import Literal
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from src.backend.services.about import get_about_info
-from src.backend.utils.paths import LOGOS_DIR
+from src.backend.services.about import get_about_info, get_about_logo_file_path
 from src.contracts.api.about import AboutResponse
 
 # --------------------------------------------------------------------------------------------------
@@ -29,7 +28,7 @@ async def get_about_logo(
 ) -> FileResponse:
     """Return a theme-specific institution logo."""
     return FileResponse(
-        LOGOS_DIR / f"{logo_name}_{theme}.png",
+        get_about_logo_file_path(logo_name, theme),
         media_type="image/png",
         headers={"Cache-Control": "public, max-age=86400"},
     )
