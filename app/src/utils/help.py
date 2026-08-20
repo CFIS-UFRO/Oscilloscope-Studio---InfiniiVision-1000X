@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 from typing import TypedDict
 
-from src.utils.paths import get_help_index_file_path
+from src.frontend.utils.paths import get_help_index_file_path
 
 # --------------------------------------------------------------------------------------------------
 # Data

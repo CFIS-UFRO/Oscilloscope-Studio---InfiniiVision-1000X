@@ -12,7 +12,8 @@ from typing import TextIO
 
 from colorlog import ColoredFormatter
 
-from src.utils.paths import get_log_file_path
+from src.config import APP_SLUG
+from src.utils.paths import get_logs_dir_path
 
 # --------------------------------------------------------------------------------------------------
 # Constants
@@ -73,7 +74,7 @@ class ExceptionHandler:
 # --------------------------------------------------------------------------------------------------
 def init_logging(process_name: str) -> Path:
     """Configure console and file logging for the current application process."""
-    log_file_path = get_log_file_path(process_name)
+    log_file_path = get_logs_dir_path() / f"{APP_SLUG}_{process_name}.log"
     process_label = process_name.upper()
     log_file_path.parent.mkdir(parents=True, exist_ok=True)
     logger.setLevel(logging.DEBUG)

@@ -7,9 +7,9 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from src.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
+from src.frontend.utils.paths import get_icon_file_path
 from src.frontend.windows.main_window import MainWindow
 from src.utils.logging import init_logging, logger
-from src.utils.paths import get_icon_file_path
 from src.utils.tmp import clean_tmp_dir
 
 # --------------------------------------------------------------------------------------------------
