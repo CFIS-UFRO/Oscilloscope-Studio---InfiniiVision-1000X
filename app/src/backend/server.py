@@ -21,6 +21,7 @@ def run_backend() -> int:
         port=BACKEND_PORT,
         log_config=None,
         log_level="info",
+        access_log=False,
     )
     server = uvicorn.Server(config)
     try:
