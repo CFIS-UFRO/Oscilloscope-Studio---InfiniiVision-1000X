@@ -1,61 +1,16 @@
-"""Backend release client and Qt update workers."""
+"""Asynchronous release-update tasks for the Qt event loop."""
 
-import html
-import json
-from datetime import datetime
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
-
-from pydantic import ValidationError
 from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
 
-from src.config import (
-    BACKEND_URL,
-    RELEASE_CHECK_TIMEOUT_SECONDS,
-    RELEASE_STAGE_TIMEOUT_SECONDS,
+from src.contracts.api.releases import ReleaseStageResponse, ReleaseUpdateResponse
+from src.frontend.clients.releases import (
+    get_latest_release_update,
+    stage_latest_release_update,
 )
-from src.contracts.api.releases import (
-    ReleaseStageResponse,
-    ReleaseUpdateResponse,
-)
-from src.contracts.artifacts.releases import ReleaseEntry
 from src.utils.logging import logger
 
 # --------------------------------------------------------------------------------------------------
-# Endpoints
-# --------------------------------------------------------------------------------------------------
-LATEST_RELEASE_URL = f"{BACKEND_URL}/api/v1/releases/latest"
-STAGE_LATEST_RELEASE_URL = f"{BACKEND_URL}/api/v1/releases/latest/stage"
-
-# --------------------------------------------------------------------------------------------------
-# Requests
-# --------------------------------------------------------------------------------------------------
-def get_latest_release_update() -> ReleaseUpdateResponse:
-    """Request and validate the latest release information from the backend."""
-    try:
-        with urlopen(LATEST_RELEASE_URL, timeout=RELEASE_CHECK_TIMEOUT_SECONDS) as response:
-            return ReleaseUpdateResponse.model_validate_json(response.read())
-    except HTTPError as exc:
-        raise RuntimeError(_get_http_error_detail(exc, "Could not check for updates.")) from exc
-    except (URLError, TimeoutError, OSError, ValidationError) as exc:
-        raise RuntimeError("Could not check for updates through the backend.") from exc
-# --------------------------------------------------------------------------------------------------
-def stage_latest_release_update() -> ReleaseStageResponse:
-    """Ask the backend to prepare the latest application release for installation."""
-    request = Request(
-        STAGE_LATEST_RELEASE_URL,
-        method="POST",
-    )
-    try:
-        with urlopen(request, timeout=RELEASE_STAGE_TIMEOUT_SECONDS) as response:
-            return ReleaseStageResponse.model_validate_json(response.read())
-    except HTTPError as exc:
-        raise RuntimeError(_get_http_error_detail(exc, "Could not prepare the update.")) from exc
-    except (URLError, TimeoutError, OSError, ValidationError) as exc:
-        raise RuntimeError("Could not prepare the update through the backend.") from exc
-
-# --------------------------------------------------------------------------------------------------
-# Update check worker
+# Update check task
 # --------------------------------------------------------------------------------------------------
 class _ReleaseUpdateWorker(QObject):
     """Request the latest release without blocking the Qt event loop."""
@@ -125,7 +80,7 @@ class ReleaseUpdateChecker(QObject):
         self._worker = None
 
 # --------------------------------------------------------------------------------------------------
-# Update staging worker
+# Update staging task
 # --------------------------------------------------------------------------------------------------
 class _ReleaseStageWorker(QObject):
     """Request update preparation without blocking the Qt event loop."""
@@ -193,39 +148,3 @@ class ReleaseUpdateStager(QObject):
     def _finish(self) -> None:
         self._thread = None
         self._worker = None
-
-# --------------------------------------------------------------------------------------------------
-# Presentation
-# --------------------------------------------------------------------------------------------------
-def format_release_entries_html(releases: list[ReleaseEntry]) -> str:
-    """Format release entries as a small HTML document."""
-    if not releases:
-        return "<!doctype html><html><body><p>No release notes available.</p></body></html>"
-    parts = ["<!doctype html>", "<html>", "<body>"]
-    for release in reversed(releases):
-        version = html.escape(release.version)
-        created_at_local = html.escape(_format_release_datetime_local(release.created_at_utc))
-        parts.append(f"<h2>Version {version}</h2>")
-        parts.append(f"<p><code>{created_at_local}</code></p>")
-        if release.changes:
-            parts.append("<ul>")
-            parts.extend(f"<li>{html.escape(change)}</li>" for change in release.changes)
-            parts.append("</ul>")
-        else:
-            parts.append("<p>No changes listed.</p>")
-    parts.extend(["</body>", "</html>"])
-    return "\n".join(parts)
-
-# --------------------------------------------------------------------------------------------------
-# Internal helpers
-# --------------------------------------------------------------------------------------------------
-def _format_release_datetime_local(value: datetime) -> str:
-    return value.astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
-# --------------------------------------------------------------------------------------------------
-def _get_http_error_detail(error: HTTPError, fallback_message: str) -> str:
-    try:
-        body = json.loads(error.read().decode("utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-        return fallback_message
-    detail = body.get("detail") if isinstance(body, dict) else None
-    return detail if isinstance(detail, str) else fallback_message

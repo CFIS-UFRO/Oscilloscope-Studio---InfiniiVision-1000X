@@ -5,8 +5,8 @@ import sys
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QWidget
 
 from src.utils.logging import logger
-from src.frontend.widgets.close_button_widget import CloseButtonWidget
-from src.frontend.widgets.help_manuals import HelpManuals
+from src.frontend.widgets.common.close_button import CloseButtonWidget
+from src.frontend.widgets.help.manual_browser import ManualBrowser
 
 # --------------------------------------------------------------------------------------------------
 # Dialog
@@ -25,18 +25,18 @@ class HelpWindow(QDialog):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-        self._help_manuals = HelpManuals(initial_manual_id, self)
-        layout.addWidget(self._help_manuals, 1)
+        self._manual_browser = ManualBrowser(initial_manual_id, self)
+        layout.addWidget(self._manual_browser, 1)
         layout.addWidget(CloseButtonWidget(self))
 
     def open_manual(self, manual_id: str) -> None:
         """Open a help manual by identifier."""
-        self._help_manuals.open_manual(manual_id)
+        self._manual_browser.open_manual(manual_id)
 
     def show_window(self) -> None:
         """Show, raise, and activate the help window."""
         logger.info(
-            f"Opening help window with entry: {self._help_manuals.get_current_manual_log_entry()}"
+            f"Opening help window with entry: {self._manual_browser.get_current_manual_log_entry()}"
         )
         if self.isMinimized():
             self.showNormal()

@@ -1,1 +1,1 @@
-"""Reusable frontend widgets."""
+"""Visual controls grouped by reuse scope or application feature."""

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.frontend.widgets.help_group_box import HelpGroupBox
+from src.frontend.widgets.help.help_group_box import HelpGroupBox
 
 # --------------------------------------------------------------------------------------------------
 # Widget

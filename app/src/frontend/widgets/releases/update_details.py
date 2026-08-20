@@ -3,8 +3,8 @@
 from PySide6.QtWidgets import QGridLayout, QGroupBox, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from src.contracts.api.releases import ReleaseUpdateResponse
-from src.frontend.utils.releases import format_release_entries_html
-from src.frontend.widgets.html_viewer import HtmlViewer
+from src.frontend.components.release_notes import format_release_entries_html
+from src.frontend.widgets.common.html_viewer import HtmlViewer
 
 # --------------------------------------------------------------------------------------------------
 # Widget

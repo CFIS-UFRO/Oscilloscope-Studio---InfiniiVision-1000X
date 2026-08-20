@@ -13,7 +13,7 @@ from src.config import (
     RESTART_EXIT_CODE,
 )
 from src.frontend.utils.paths import ICON_FILE_PATH
-from src.frontend.windows.main_window import MainWindow
+from src.frontend.windows.main import MainWindow
 from src.utils.logging import init_logging, logger
 
 # --------------------------------------------------------------------------------------------------

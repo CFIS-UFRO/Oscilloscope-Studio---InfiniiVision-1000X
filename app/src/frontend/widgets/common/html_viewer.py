@@ -1,4 +1,4 @@
-"""Theme-aware HTML viewer used for release notes."""
+"""Reusable theme-aware HTML viewer."""
 
 from dataclasses import dataclass
 

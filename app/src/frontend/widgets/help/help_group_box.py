@@ -3,7 +3,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from src.frontend.widgets.help_button import HelpButton
+from src.frontend.widgets.help.help_button import HelpButton
 
 # --------------------------------------------------------------------------------------------------
 # Widget

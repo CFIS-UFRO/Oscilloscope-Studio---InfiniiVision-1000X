@@ -1,7 +1,5 @@
 """Searchable help-manual navigation and content viewer."""
 
-import re
-
 from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
@@ -15,9 +13,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.frontend.utils.manuals import get_manuals
+from src.frontend.components.manual_catalog import get_manual_search_text, get_manuals
 from src.frontend.utils.paths import HELP_DIR
-from src.frontend.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
+from src.frontend.widgets.common.html_viewer import HtmlViewer, HtmlViewerStyle
 
 # --------------------------------------------------------------------------------------------------
 # Item data roles
@@ -29,7 +27,7 @@ MANUAL_SEARCH_TEXT_ROLE = MANUAL_ID_ROLE + 2
 # --------------------------------------------------------------------------------------------------
 # Widget
 # --------------------------------------------------------------------------------------------------
-class HelpManuals(QGroupBox):
+class ManualBrowser(QGroupBox):
     """Search, select, and display indexed HTML help manuals."""
 
     def __init__(
@@ -78,15 +76,10 @@ class HelpManuals(QGroupBox):
             item = QListWidgetItem(manual.title, self._manual_list)
             item.setData(MANUAL_ID_ROLE, manual.id)
             item.setData(MANUAL_FILE_ROLE, manual.file)
-            manual_file_path = HELP_DIR / manual.file
-            try:
-                raw_html = manual_file_path.read_text(encoding="utf-8")
-            except OSError:
-                searchable_text = ""
-            else:
-                searchable_text = re.sub(r"<[^>]+>", "", raw_html)
-                searchable_text = re.sub(r"\s+", " ", searchable_text).strip()
-            item.setData(MANUAL_SEARCH_TEXT_ROLE, searchable_text)
+            item.setData(
+                MANUAL_SEARCH_TEXT_ROLE,
+                get_manual_search_text(HELP_DIR / manual.file),
+            )
         if initial_manual_id is not None:
             self.open_manual(initial_manual_id)
         elif self._manual_list.count() > 0:
