@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 from typing import TypedDict
 
-from src.frontend.utils.paths import get_help_index_file_path
+from src.frontend.utils.paths import HELP_INDEX_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Data
@@ -22,14 +22,13 @@ class HelpManual(TypedDict):
 @lru_cache(maxsize=1)
 def get_help_manuals() -> list[HelpManual]:
     """Load and validate the configured help manuals."""
-    index_file_path = get_help_index_file_path()
-    data = json.loads(index_file_path.read_text(encoding="utf-8"))
+    data = json.loads(HELP_INDEX_FILE_PATH.read_text(encoding="utf-8"))
     if not isinstance(data, list):
-        raise ValueError(f"Help index must contain a list: {index_file_path}")
+        raise ValueError(f"Help index must contain a list: {HELP_INDEX_FILE_PATH}")
     manuals = []
     for entry in data:
         if not isinstance(entry, dict):
-            raise ValueError(f"Help index entries must contain objects: {index_file_path}")
+            raise ValueError(f"Help index entries must contain objects: {HELP_INDEX_FILE_PATH}")
         manual_id = entry.get("id")
         title = entry.get("title")
         file_path = entry.get("file")
@@ -41,6 +40,8 @@ def get_help_manuals() -> list[HelpManual]:
             or not isinstance(file_path, str)
             or not file_path
         ):
-            raise ValueError(f"Help index entries require id, title, and file strings: {index_file_path}")
+            raise ValueError(
+                f"Help index entries require id, title, and file strings: {HELP_INDEX_FILE_PATH}"
+            )
         manuals.append(HelpManual(id=manual_id, title=title, file=file_path))
     return manuals

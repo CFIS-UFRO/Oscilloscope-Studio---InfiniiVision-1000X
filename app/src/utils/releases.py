@@ -21,7 +21,7 @@ from src.config import (
     RELEASE_REPOSITORY_NAME,
 )
 from src.utils.logging import logger
-from src.utils.paths import get_project_dir_path, get_pyproject_file_path
+from src.utils.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
 from src.utils.tmp import create_file, get_tmp_file_path
 
 # --------------------------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ def append_release_entry(releases_file_path: Path, version: str, changes: list[s
 # --------------------------------------------------------------------------------------------------
 def get_latest_release_update() -> ReleaseUpdate:
     """Download the latest metadata asset and resolve available update information."""
-    current_version = get_pyproject_version(get_pyproject_file_path())
+    current_version = get_pyproject_version(PYPROJECT_FILE_PATH)
     logger.info(f"Checking for updates. Current version: {current_version}")
     release_data = _read_json_url(GITHUB_LATEST_RELEASE_API_URL)
     metadata_asset = _get_release_asset(release_data, ".json")
@@ -338,7 +338,7 @@ def install_release_update(release_update: ReleaseUpdate) -> Path:
     actual_sha256 = calculate_file_sha256(archive_file_path)
     if actual_sha256 != release_update.archive_sha256:
         raise ValueError("Downloaded release archive failed SHA-256 verification.")
-    extract_release_archive(archive_file_path, get_project_dir_path())
+    extract_release_archive(archive_file_path, PROJECT_DIR)
     logger.info(f"Installed release update: {release_update.latest_version}")
     return archive_file_path
 # --------------------------------------------------------------------------------------------------

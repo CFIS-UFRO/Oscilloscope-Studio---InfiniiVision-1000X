@@ -3,7 +3,7 @@
 import json
 from typing import NotRequired, TypedDict
 
-from src.frontend.utils.paths import get_about_file_path
+from src.frontend.utils.paths import ABOUT_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Data structures
@@ -33,9 +33,7 @@ class AboutInfo(TypedDict):
 # --------------------------------------------------------------------------------------------------
 def get_about_info() -> AboutInfo:
     """Load the configured about information."""
-    # Resolve the metadata file
-    about_file_path = get_about_file_path()
     # Load the typed information
-    with about_file_path.open(encoding="utf-8") as about_file:
+    with ABOUT_FILE_PATH.open(encoding="utf-8") as about_file:
         about_info: AboutInfo = json.load(about_file)
     return about_info

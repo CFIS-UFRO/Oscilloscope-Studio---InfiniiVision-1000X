@@ -13,7 +13,7 @@ from src.config import (
     BACKEND_URL,
     PROCESS_SHUTDOWN_TIMEOUT_SECONDS,
 )
-from src.utils.paths import get_app_dir_path
+from src.utils.paths import APP_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Process configuration
@@ -28,7 +28,7 @@ def start_process(module_name: str) -> subprocess.Popen[bytes]:
     # Child process
     return subprocess.Popen(
         [sys.executable, "-m", module_name],
-        cwd=get_app_dir_path(),
+        cwd=APP_DIR,
     )
 # --------------------------------------------------------------------------------------------------
 def wait_for_first_process_exit(

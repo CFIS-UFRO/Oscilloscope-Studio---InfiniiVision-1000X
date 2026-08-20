@@ -8,10 +8,10 @@ from pathlib import Path
 from src.config import APP_NAME, RELEASE_REPOSITORY_NAME
 from src.utils.logging import init_logging, logger
 from src.utils.paths import (
-    get_project_dir_path,
-    get_pyproject_file_path,
-    get_releases_file_path,
-    get_uv_lock_file_path,
+    PROJECT_DIR,
+    PYPROJECT_FILE_PATH,
+    RELEASES_FILE_PATH,
+    UV_LOCK_FILE_PATH,
 )
 from src.utils.releases import (
     append_release_entry,
@@ -43,38 +43,38 @@ def main() -> int:
     init_logging("release")
     logger.info("Starting release process...")
     validate_release_requirements()
-    validate_clean_worktree(get_project_dir_path())
+    validate_clean_worktree(PROJECT_DIR)
     validate_github_authentication()
     validate_release_repository()
     update_type = ask_update_type()
     release_changes = ask_release_changes()
-    project_dir_path = get_project_dir_path()
-    pyproject_file_path = get_pyproject_file_path()
-    uv_lock_file_path = get_uv_lock_file_path()
-    releases_file_path = get_releases_file_path()
-    previous_version = get_pyproject_version(pyproject_file_path)
-    new_version = update_pyproject_version(pyproject_file_path, uv_lock_file_path, update_type)
+    previous_version = get_pyproject_version(PYPROJECT_FILE_PATH)
+    new_version = update_pyproject_version(
+        PYPROJECT_FILE_PATH,
+        UV_LOCK_FILE_PATH,
+        update_type,
+    )
     logger.info(f"Updated project version: {previous_version} -> {new_version}")
-    append_release_entry(releases_file_path, new_version, release_changes)
+    append_release_entry(RELEASES_FILE_PATH, new_version, release_changes)
     release_file_stem = get_release_file_stem(new_version)
     archive_file_path = get_tmp_file_path(f"{release_file_stem}.zip")
     metadata_file_path = get_tmp_file_path(f"{release_file_stem}.json")
-    release_file_paths = get_git_managed_file_paths(project_dir_path)
-    compress_paths(project_dir_path, release_file_paths, archive_file_path)
+    release_file_paths = get_git_managed_file_paths(PROJECT_DIR)
+    compress_paths(PROJECT_DIR, release_file_paths, archive_file_path)
     archive_sha256 = calculate_file_sha256(archive_file_path)
     write_release_metadata(
         metadata_file_path.name,
         new_version,
         archive_sha256,
-        get_release_entries(releases_file_path),
+        get_release_entries(RELEASES_FILE_PATH),
     )
     logger.info(f"Created release archive: {archive_file_path}")
     logger.info(f"Created release metadata: {metadata_file_path}")
     commit_and_push_release_changes(
-        project_dir_path,
+        PROJECT_DIR,
         previous_version,
         new_version,
-        [pyproject_file_path, uv_lock_file_path, releases_file_path],
+        [PYPROJECT_FILE_PATH, UV_LOCK_FILE_PATH, RELEASES_FILE_PATH],
     )
     create_github_release(new_version, [archive_file_path, metadata_file_path])
     logger.info(f"Release {new_version} completed")
@@ -175,7 +175,7 @@ def create_github_release(version: str, asset_file_paths: list[Path]) -> None:
             "--notes",
             f"Application update for {APP_NAME} {version}.",
         ],
-        cwd=get_project_dir_path(),
+        cwd=PROJECT_DIR,
     )
 # --------------------------------------------------------------------------------------------------
 def run_command(command: list[str], cwd: Path) -> None:

@@ -2,12 +2,12 @@
 
 from pathlib import Path
 
-from src.utils.paths import get_src_dir_path
+from src.utils.paths import SRC_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Directories
 # --------------------------------------------------------------------------------------------------
-FRONTEND_DIR: Path = get_src_dir_path() / "frontend"
+FRONTEND_DIR: Path = SRC_DIR / "frontend"
 ASSETS_DIR: Path = FRONTEND_DIR / "assets"
 HELP_DIR: Path = ASSETS_DIR / "help"
 ICONS_DIR: Path = ASSETS_DIR / "icons"
@@ -25,23 +25,7 @@ EXTERNAL_LINK_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_black.svg"
 EXTERNAL_LINK_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_white.svg"
 
 # --------------------------------------------------------------------------------------------------
-# Getters
-# --------------------------------------------------------------------------------------------------
-def get_frontend_dir_path() -> Path:
-    """Return the frontend source directory."""
-    return FRONTEND_DIR
-# --------------------------------------------------------------------------------------------------
-def get_assets_dir_path() -> Path:
-    """Return the assets directory."""
-    return ASSETS_DIR
-# --------------------------------------------------------------------------------------------------
-def get_help_dir_path() -> Path:
-    """Return the help assets directory."""
-    return HELP_DIR
-# --------------------------------------------------------------------------------------------------
-def get_help_index_file_path() -> Path:
-    """Return the help-manual index path."""
-    return HELP_INDEX_FILE_PATH
+# Path resolution
 # --------------------------------------------------------------------------------------------------
 def get_help_icon_file_path(is_dark_mode: bool = False) -> Path:
     """Return the help icon path for the current color theme."""
@@ -58,11 +42,3 @@ def get_logo_file_path(file_name: str, is_dark_mode: bool = False) -> Path:
         raise ValueError(f"Logo path must contain only a file name: {file_name}")
     theme_suffix = "dark" if is_dark_mode else "light"
     return LOGOS_DIR / f"{base_file_path.stem}_{theme_suffix}{base_file_path.suffix}"
-# --------------------------------------------------------------------------------------------------
-def get_icon_file_path() -> Path:
-    """Return the application icon path."""
-    return ICON_FILE_PATH
-# --------------------------------------------------------------------------------------------------
-def get_about_file_path() -> Path:
-    """Return the application credits path."""
-    return ABOUT_FILE_PATH

@@ -15,9 +15,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.utils.help import get_help_manuals
-from src.frontend.utils.paths import get_help_dir_path
+from src.frontend.utils.paths import HELP_DIR
 from src.frontend.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
+from src.utils.help import get_help_manuals
 
 # --------------------------------------------------------------------------------------------------
 # Item data roles
@@ -63,13 +63,12 @@ class HelpManuals(QGroupBox):
         self._search_timer = QTimer(left_panel)
         self._search_timer.setSingleShot(True)
         self._search_timer.timeout.connect(self._apply_search_filter)
-        help_dir_path = get_help_dir_path()
         self._manual_viewer = HtmlViewer(
             HtmlViewerStyle(include_links=True, include_h1=True, h2_margin="24px 0 8px"),
             splitter,
         )
-        self._manual_viewer.setSearchPaths([str(help_dir_path)])
-        self._manual_viewer.document().setBaseUrl(QUrl.fromLocalFile(f"{help_dir_path}/"))
+        self._manual_viewer.setSearchPaths([str(HELP_DIR)])
+        self._manual_viewer.document().setBaseUrl(QUrl.fromLocalFile(f"{HELP_DIR}/"))
         self._manual_viewer.setOpenLinks(False)
         self._manual_viewer.anchorClicked.connect(self._handle_manual_link_clicked)
         splitter.addWidget(self._manual_viewer)
@@ -79,7 +78,7 @@ class HelpManuals(QGroupBox):
             item = QListWidgetItem(manual["title"], self._manual_list)
             item.setData(MANUAL_ID_ROLE, manual["id"])
             item.setData(MANUAL_FILE_ROLE, manual["file"])
-            manual_file_path = help_dir_path / manual["file"]
+            manual_file_path = HELP_DIR / manual["file"]
             try:
                 raw_html = manual_file_path.read_text(encoding="utf-8")
             except OSError:
@@ -156,11 +155,10 @@ class HelpManuals(QGroupBox):
         source_path = source_path.split("#", 1)[0].split("?", 1)[0]
         if not source_path:
             return None
-        help_dir_path = get_help_dir_path()
         if url.isLocalFile():
             try:
                 return str(
-                    help_dir_path.joinpath(source_path).resolve().relative_to(help_dir_path.resolve())
+                    HELP_DIR.joinpath(source_path).resolve().relative_to(HELP_DIR.resolve())
                 )
             except ValueError:
                 return None

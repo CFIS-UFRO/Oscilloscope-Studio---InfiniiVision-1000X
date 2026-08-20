@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from src.config import APP_NAME, RESTART_EXIT_CODE
 from src.utils.logging import logger
-from src.utils.paths import get_project_dir_path
+from src.utils.paths import PROJECT_DIR
 from src.utils.releases import ReleaseUpdate, ReleaseUpdateChecker, install_release_update
 from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 
@@ -36,7 +36,7 @@ class ReleaseUpdateWindow(QDialog):
         # Update state
         self._release_update: ReleaseUpdate | None = None
         self._restart_callback = restart_callback
-        self._updates_disabled_by_git = (get_project_dir_path() / ".git").exists()
+        self._updates_disabled_by_git = (PROJECT_DIR / ".git").exists()
         self._silent_check = False
         self._allow_result_window = True
         self._details: ReleaseUpdateDetails | None = None
