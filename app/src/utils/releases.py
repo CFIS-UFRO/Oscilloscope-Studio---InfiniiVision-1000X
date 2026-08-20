@@ -15,6 +15,7 @@ from urllib.request import Request, urlopen
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
 
+from src.backend.utils.tmp import create_file, get_tmp_file_path
 from src.config import (
     RELEASE_ARCHIVE_PREFIX,
     RELEASE_HTTP_USER_AGENT,
@@ -22,7 +23,6 @@ from src.config import (
 )
 from src.utils.logging import logger
 from src.utils.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
-from src.utils.tmp import create_file, get_tmp_file_path
 
 # --------------------------------------------------------------------------------------------------
 # Constants

@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from src.backend.utils.tmp import get_tmp_file_path
 from src.config import APP_NAME, RELEASE_REPOSITORY_NAME
 from src.utils.logging import init_logging, logger
 from src.utils.paths import (
@@ -24,7 +25,6 @@ from src.utils.releases import (
     update_pyproject_version,
     write_release_metadata,
 )
-from src.utils.tmp import get_tmp_file_path
 
 # --------------------------------------------------------------------------------------------------
 # Constants

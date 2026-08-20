@@ -6,11 +6,11 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
+from src.backend.utils.tmp import clean_tmp_dir
 from src.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
 from src.frontend.utils.paths import ICON_FILE_PATH
 from src.frontend.windows.main_window import MainWindow
 from src.utils.logging import init_logging, logger
-from src.utils.tmp import clean_tmp_dir
 
 # --------------------------------------------------------------------------------------------------
 # Application lifecycle

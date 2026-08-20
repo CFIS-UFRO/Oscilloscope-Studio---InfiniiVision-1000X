@@ -3,8 +3,8 @@
 import shutil
 from pathlib import Path
 
+from src.backend.utils.paths import TMP_DIR
 from src.utils.logging import logger
-from src.utils.paths import TMP_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Temporary files
@@ -24,7 +24,7 @@ def create_file(relative_path: str, content: bytes | str, permissions: int | Non
         full_path.write_bytes(content)
     if permissions is not None:
         full_path.chmod(permissions)
-    logger.debug(f"Wrote temporary file: {full_path}")
+    logger.info(f"Wrote temporary file: {full_path}")
     return full_path
 # --------------------------------------------------------------------------------------------------
 def clean_tmp_dir() -> bool:

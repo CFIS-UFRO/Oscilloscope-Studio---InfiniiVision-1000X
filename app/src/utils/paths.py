@@ -10,7 +10,6 @@ PROJECT_DIR: Path = APP_DIR.parent
 SRC_DIR: Path = APP_DIR / "src"
 LOGS_DIR: Path = APP_DIR / "logs"
 USER_DATA_DIR: Path = APP_DIR / "usr"
-TMP_DIR: Path = APP_DIR / "tmp"
 
 # --------------------------------------------------------------------------------------------------
 # Files
