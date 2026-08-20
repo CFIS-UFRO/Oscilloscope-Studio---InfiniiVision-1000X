@@ -6,7 +6,7 @@ from urllib.request import urlopen
 from pydantic import ValidationError
 
 from src.config import BACKEND_REQUEST_TIMEOUT_SECONDS, BACKEND_URL
-from src.contracts.about import AboutResponse
+from src.contracts.api.about import AboutResponse
 
 # --------------------------------------------------------------------------------------------------
 # Endpoint

@@ -18,12 +18,12 @@ from src.config import (
     RELEASE_REMOTE_REQUEST_TIMEOUT_SECONDS,
     RELEASE_REPOSITORY_NAME,
 )
-from src.contracts.releases import (
-    PendingReleaseUpdate,
-    ReleaseMetadata,
+from src.contracts.api.releases import (
     ReleaseStageResponse,
     ReleaseUpdateResponse,
 )
+from src.contracts.artifacts.releases import ReleaseMetadata
+from src.contracts.updater import PendingReleaseUpdate
 from src.utils.logging import logger
 from src.utils.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
 from src.utils.versions import get_pyproject_version, is_version_newer

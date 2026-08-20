@@ -10,7 +10,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from src.config import RELEASE_ARCHIVE_PREFIX
-from src.contracts.releases import ReleaseEntry, ReleaseHistory, ReleaseMetadata
+from src.contracts.artifacts.releases import ReleaseEntry, ReleaseHistory, ReleaseMetadata
 from src.utils.versions import PYPROJECT_VERSION_RE, get_pyproject_version, parse_semantic_version
 
 # --------------------------------------------------------------------------------------------------

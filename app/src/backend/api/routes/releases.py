@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 
 from src.backend.services.releases import get_latest_release_update, stage_latest_release_update
-from src.contracts.releases import (
+from src.contracts.api.releases import (
     ReleaseStageResponse,
     ReleaseUpdateResponse,
 )

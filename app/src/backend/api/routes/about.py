@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 
 from src.backend.services.about import get_about_info
 from src.backend.utils.paths import LOGOS_DIR
-from src.contracts.about import AboutResponse
+from src.contracts.api.about import AboutResponse
 
 # --------------------------------------------------------------------------------------------------
 # Router

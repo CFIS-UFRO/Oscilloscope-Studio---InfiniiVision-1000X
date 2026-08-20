@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
-from src.contracts.about import InstitutionInfo
+from src.contracts.api.about import InstitutionInfo
 from src.frontend.utils.about import get_about_info, get_about_logo
 from src.frontend.utils.colors import is_dark_mode
 from src.frontend.utils.paths import get_external_link_icon_file_path

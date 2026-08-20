@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.contracts.general import ApplicationInfoResponse
-from src.contracts.health import HealthResponse
+from src.contracts.api.general import ApplicationInfoResponse
+from src.contracts.api.health import HealthResponse
 from src.utils.versions import get_pyproject_version
 
 # --------------------------------------------------------------------------------------------------

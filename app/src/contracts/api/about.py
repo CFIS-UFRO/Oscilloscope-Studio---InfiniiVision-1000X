@@ -1,4 +1,4 @@
-"""Application About-information contracts."""
+"""Application About-information API contracts."""
 
 from pydantic import BaseModel
 

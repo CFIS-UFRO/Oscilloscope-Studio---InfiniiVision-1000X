@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
-from src.contracts.releases import ReleaseStageResponse, ReleaseUpdateResponse
+from src.contracts.api.releases import ReleaseStageResponse, ReleaseUpdateResponse
 from src.frontend.utils.releases import ReleaseUpdateChecker, ReleaseUpdateStager
 from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 from src.utils.logging import logger

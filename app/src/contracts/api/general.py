@@ -1,4 +1,4 @@
-"""General application API contracts."""
+"""General backend API contracts."""
 
 from pydantic import BaseModel
 

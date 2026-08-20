@@ -1,1 +1,1 @@
-"""Shared HTTP and WebSocket message contracts."""
+"""Validated contracts shared across application boundaries."""

@@ -1,4 +1,4 @@
-"""Backend health-check contracts."""
+"""Backend health-check API contracts."""
 
 from typing import Literal
 

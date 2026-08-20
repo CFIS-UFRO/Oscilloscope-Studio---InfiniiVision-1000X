@@ -14,11 +14,11 @@ from src.config import (
     RELEASE_CHECK_TIMEOUT_SECONDS,
     RELEASE_STAGE_TIMEOUT_SECONDS,
 )
-from src.contracts.releases import (
-    ReleaseEntry,
+from src.contracts.api.releases import (
     ReleaseStageResponse,
     ReleaseUpdateResponse,
 )
+from src.contracts.artifacts.releases import ReleaseEntry
 from src.utils.logging import logger
 
 # --------------------------------------------------------------------------------------------------

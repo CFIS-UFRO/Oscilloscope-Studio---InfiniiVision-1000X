@@ -3,7 +3,7 @@
 from functools import lru_cache
 
 from src.backend.utils.paths import ABOUT_FILE_PATH
-from src.contracts.about import AboutResponse
+from src.contracts.api.about import AboutResponse
 
 # --------------------------------------------------------------------------------------------------
 # Loading

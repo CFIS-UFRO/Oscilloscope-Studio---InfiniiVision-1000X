@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from src.config import APP_NAME
-from src.contracts.releases import PendingReleaseUpdate
+from src.contracts.updater import PendingReleaseUpdate
 
 # --------------------------------------------------------------------------------------------------
 # Paths
