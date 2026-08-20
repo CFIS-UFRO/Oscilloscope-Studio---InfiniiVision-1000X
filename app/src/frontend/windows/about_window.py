@@ -2,7 +2,7 @@
 
 import sys
 
-from PySide6.QtCore import QSize, Qt, QUrl
+from PySide6.QtCore import QByteArray, QSize, Qt, QUrl
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -143,7 +143,7 @@ class AboutWindow(QDialog):
             logger.warning(str(exc))
             return None
         pixmap = QPixmap()
-        pixmap.loadFromData(logo_data, "PNG")
+        pixmap.loadFromData(QByteArray(logo_data), b"PNG")
         # Skip an unavailable or invalid image
         if pixmap.isNull():
             logger.warning(f"Could not decode About logo: {logo_path}")
