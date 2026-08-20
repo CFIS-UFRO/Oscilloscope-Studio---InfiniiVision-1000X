@@ -40,7 +40,7 @@ UPDATE_TYPE_ALIASES = {
 # --------------------------------------------------------------------------------------------------
 def main() -> int:
     """Run the interactive release workflow."""
-    init_logging()
+    init_logging("release")
     logger.info("Starting release process...")
     validate_release_requirements()
     validate_clean_worktree(get_project_dir_path())

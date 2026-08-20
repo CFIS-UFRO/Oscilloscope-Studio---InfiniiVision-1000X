@@ -1,4 +1,4 @@
-"""Console and rotating-file logging configuration."""
+"""Shared console and rotating-file logging configuration."""
 
 import logging
 import re
@@ -11,7 +11,6 @@ from types import TracebackType
 from typing import TextIO
 
 from colorlog import ColoredFormatter
-from PySide6.QtCore import QObject, Signal
 
 from src.utils.paths import get_log_file_path
 
@@ -31,29 +30,6 @@ class StripAnsiFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         return ANSI_ESCAPE_RE.sub("", super().format(record))
-# --------------------------------------------------------------------------------------------------
-class _QtLogEmitter(QObject):
-    """Emit formatted log records through Qt's thread-safe signal delivery."""
-
-    message_logged = Signal(float, str, str)
-# --------------------------------------------------------------------------------------------------
-class QtLogHandler(logging.Handler):
-    """Forward formatted log records to Qt slots."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.emitter = _QtLogEmitter()
-
-    def emit(self, record: logging.LogRecord) -> None:
-        try:
-            message = self.format(record)
-            self.emitter.message_logged.emit(
-                record.created,
-                record.levelname,
-                message,
-            )
-        except Exception:
-            self.handleError(record)
 # --------------------------------------------------------------------------------------------------
 class StreamToLogger:
     """Redirect a text stream to the configured logger."""
@@ -95,15 +71,14 @@ class ExceptionHandler:
 # --------------------------------------------------------------------------------------------------
 # Configuration
 # --------------------------------------------------------------------------------------------------
-def init_logging() -> Path:
-    """Configure console, file, Qt, stream, warning, and exception logging."""
-    log_file_path = get_log_file_path()
-    if getattr(logger, "_oscilloscope_studio_initialized", False):
-        return log_file_path
+def init_logging(process_name: str) -> Path:
+    """Configure console and file logging for the current application process."""
+    log_file_path = get_log_file_path(process_name)
+    process_label = process_name.upper()
     log_file_path.parent.mkdir(parents=True, exist_ok=True)
     logger.setLevel(logging.DEBUG)
     console_formatter = ColoredFormatter(
-        "%(log_color)s%(asctime)s [%(levelname)s] %(message)s%(reset)s",
+        f"%(log_color)s%(asctime)s [{process_label}] [%(levelname)s] %(message)s%(reset)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     console_handler = logging.StreamHandler(sys.__stdout__)
@@ -111,7 +86,7 @@ def init_logging() -> Path:
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
     file_formatter = StripAnsiFormatter(
-        "%(asctime)s [%(levelname)s] %(message)s",
+        f"%(asctime)s [{process_label}] [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     file_handler = RotatingFileHandler(
@@ -124,13 +99,10 @@ def init_logging() -> Path:
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
-    qt_log_handler.setLevel(logging.INFO)
-    logger.addHandler(qt_log_handler)
     sys.stdout = StreamToLogger(logger, logging.INFO, sys.__stdout__)
     sys.stderr = StreamToLogger(logger, logging.ERROR, sys.__stderr__)
     sys.excepthook = ExceptionHandler(logger)
     logging.captureWarnings(True)
-    setattr(logger, "_oscilloscope_studio_initialized", True)
     return log_file_path
 # --------------------------------------------------------------------------------------------------
 def log_tree(items: Sequence[str], header: str | None = None, level: int = logging.INFO) -> None:
@@ -146,4 +118,3 @@ def log_tree(items: Sequence[str], header: str | None = None, level: int = loggi
 # Shared logging objects
 # --------------------------------------------------------------------------------------------------
 logger = logging.getLogger()
-qt_log_handler = QtLogHandler()

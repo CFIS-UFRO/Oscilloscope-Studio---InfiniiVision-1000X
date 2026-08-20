@@ -31,7 +31,7 @@ def about_to_quit() -> None:
 # --------------------------------------------------------------------------------------------------
 def run_frontend() -> int:
     """Initialize and run the Qt frontend in the current process."""
-    init_logging()
+    init_logging("frontend")
     clean_tmp_dir()
     logger.info(f"Starting {APP_NAME} frontend...")
     app = QApplication(sys.argv)

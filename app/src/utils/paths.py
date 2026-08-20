@@ -26,7 +26,6 @@ TMP_DIR: Path = APP_DIR / "tmp"
 PYPROJECT_FILE_PATH: Path = APP_DIR / "pyproject.toml"
 UV_LOCK_FILE_PATH: Path = APP_DIR / "uv.lock"
 RELEASES_FILE_PATH: Path = APP_DIR / "releases.json"
-LOG_FILE_PATH: Path = LOGS_DIR / f"{APP_SLUG}.log"
 ICON_FILE_PATH: Path = ASSETS_DIR / "icon.png"
 ABOUT_FILE_PATH: Path = ASSETS_DIR / "about.json"
 HELP_INDEX_FILE_PATH: Path = HELP_DIR / "index.json"
@@ -110,9 +109,9 @@ def get_releases_file_path() -> Path:
     """Return the release-history file path."""
     return RELEASES_FILE_PATH
 # --------------------------------------------------------------------------------------------------
-def get_log_file_path() -> Path:
-    """Return the rotating log-file path."""
-    return LOG_FILE_PATH
+def get_log_file_path(process_name: str) -> Path:
+    """Return the rotating log-file path for an application process."""
+    return LOGS_DIR / f"{APP_SLUG}_{process_name}.log"
 # --------------------------------------------------------------------------------------------------
 def get_icon_file_path() -> Path:
     """Return the application icon path."""
