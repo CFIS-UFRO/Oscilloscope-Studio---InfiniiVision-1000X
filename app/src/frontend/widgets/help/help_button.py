@@ -4,9 +4,9 @@ from PySide6.QtCore import QEvent, QSize, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QPushButton, QSizePolicy, QWidget
 
-from src.frontend.utils.colors import is_dark_mode
+from src.frontend.utils.color_scheme import is_dark_mode
 from src.frontend.utils.paths import get_help_icon_file_path
-from src.frontend.windows.help import HelpWindow
+from src.frontend.windows.help_window import HelpWindow
 
 # --------------------------------------------------------------------------------------------------
 # Widget

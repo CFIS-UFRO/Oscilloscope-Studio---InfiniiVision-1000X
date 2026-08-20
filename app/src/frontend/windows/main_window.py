@@ -14,13 +14,13 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
-from src.frontend.clients.general import get_application_info
-from src.frontend.widgets.main.footer import FooterWidget
-from src.frontend.widgets.main.header import HeaderWidget
-from src.frontend.widgets.main.terminal import TerminalWidget
-from src.frontend.windows.about import AboutWindow
-from src.frontend.windows.help import HelpWindow
-from src.frontend.windows.release_update import ReleaseUpdateWindow
+from src.frontend.clients.application_info import get_application_info
+from src.frontend.widgets.main.footer_widget import FooterWidget
+from src.frontend.widgets.main.header_widget import HeaderWidget
+from src.frontend.widgets.main.terminal_widget import TerminalWidget
+from src.frontend.windows.about_window import AboutWindow
+from src.frontend.windows.help_window import HelpWindow
+from src.frontend.windows.release_update_window import ReleaseUpdateWindow
 from src.utils.logging import logger
 
 # --------------------------------------------------------------------------------------------------

@@ -1,21 +1,9 @@
 """Reusable theme-aware HTML viewer."""
 
-from dataclasses import dataclass
-
 from PySide6.QtWidgets import QApplication, QTextBrowser, QWidget
 
-from src.frontend.utils.colors import is_dark_mode
-
-# --------------------------------------------------------------------------------------------------
-# Style
-# --------------------------------------------------------------------------------------------------
-@dataclass(frozen=True)
-class HtmlViewerStyle:
-    """HTML viewer style settings."""
-
-    include_links: bool = False
-    include_h1: bool = False
-    h2_margin: str = "0 0 8px"
+from src.frontend.components.html_viewer_style import HtmlViewerStyle
+from src.frontend.utils.color_scheme import is_dark_mode
 
 # --------------------------------------------------------------------------------------------------
 # Widget

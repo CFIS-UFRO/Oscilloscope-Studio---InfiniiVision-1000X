@@ -1,4 +1,4 @@
-"""General backend API client."""
+"""Application-information backend API client."""
 
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen

@@ -13,9 +13,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.frontend.components.manual_catalog import get_manual_search_text, get_manuals
+from src.frontend.components.html_viewer_style import HtmlViewerStyle
+from src.frontend.components.manual_catalog import (
+    get_manual_collection,
+    get_manual_search_text,
+)
 from src.frontend.utils.paths import HELP_DIR
-from src.frontend.widgets.common.html_viewer import HtmlViewer, HtmlViewerStyle
+from src.frontend.widgets.common.html_viewer import HtmlViewer
 
 # --------------------------------------------------------------------------------------------------
 # Item data roles
@@ -37,7 +41,7 @@ class ManualBrowser(QGroupBox):
     ) -> None:
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self._manuals = get_manuals()
+        self._manual_collection = get_manual_collection()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(0)
@@ -72,7 +76,7 @@ class ManualBrowser(QGroupBox):
         splitter.addWidget(self._manual_viewer)
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
-        for manual in self._manuals.root:
+        for manual in self._manual_collection.root:
             item = QListWidgetItem(manual.title, self._manual_list)
             item.setData(MANUAL_ID_ROLE, manual.id)
             item.setData(MANUAL_FILE_ROLE, manual.file)

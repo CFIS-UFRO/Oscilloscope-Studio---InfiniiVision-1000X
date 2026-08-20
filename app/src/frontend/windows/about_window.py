@@ -19,9 +19,9 @@ from PySide6.QtWidgets import (
 from src.config import APP_NAME
 from src.contracts.api.about import InstitutionInfo
 from src.frontend.clients.about import get_about_info, get_about_logo
-from src.frontend.utils.colors import is_dark_mode
+from src.frontend.utils.color_scheme import is_dark_mode
 from src.frontend.utils.paths import get_external_link_icon_file_path
-from src.frontend.widgets.common.close_button import CloseButtonWidget
+from src.frontend.widgets.common.close_button_widget import CloseButtonWidget
 from src.utils.logging import logger
 
 # --------------------------------------------------------------------------------------------------

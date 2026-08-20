@@ -5,7 +5,7 @@ import sys
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QWidget
 
 from src.utils.logging import logger
-from src.frontend.widgets.common.close_button import CloseButtonWidget
+from src.frontend.widgets.common.close_button_widget import CloseButtonWidget
 from src.frontend.widgets.help.manual_browser import ManualBrowser
 
 # --------------------------------------------------------------------------------------------------
