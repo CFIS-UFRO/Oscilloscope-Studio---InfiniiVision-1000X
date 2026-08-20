@@ -1,4 +1,4 @@
-"""About-information loading and validation."""
+"""About-information service."""
 
 from functools import lru_cache
 

@@ -1,4 +1,4 @@
-"""GitHub release discovery and application-update preparation."""
+"""Release discovery and application-update service."""
 
 import hashlib
 import json
