@@ -21,6 +21,7 @@ BACKEND_HOST = "127.0.0.1"
 BACKEND_PORT = 57341
 BACKEND_URL = f"http://{BACKEND_HOST}:{BACKEND_PORT}"
 BACKEND_STARTUP_TIMEOUT_SECONDS = 15.0
+BACKEND_REQUEST_TIMEOUT_SECONDS = 5.0
 
 # --------------------------------------------------------------------------------------------------
 # Release configuration

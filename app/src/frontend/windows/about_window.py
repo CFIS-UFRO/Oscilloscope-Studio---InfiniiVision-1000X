@@ -17,10 +17,11 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
+from src.contracts.about import InstitutionInfo
+from src.frontend.utils.about import get_about_info, get_about_logo
 from src.frontend.utils.colors import is_dark_mode
-from src.frontend.utils.paths import get_external_link_icon_file_path, get_logo_file_path
+from src.frontend.utils.paths import get_external_link_icon_file_path
 from src.frontend.widgets.close_button_widget import CloseButtonWidget
-from src.utils.about import InstitutionInfo, get_about_info
 from src.utils.logging import logger
 
 # --------------------------------------------------------------------------------------------------
@@ -52,20 +53,20 @@ class AboutWindow(QDialog):
         information_layout.addRow(
             "Main developer",
             self._create_value_label(
-                f"{about_info['main_developer']['name']} "
-                f"({about_info['main_developer']['email']})",
+                f"{about_info.main_developer.name} "
+                f"({about_info.main_developer.email})",
                 word_wrap=False,
             ),
         )
         # Add the laboratory information
         information_layout.addRow(
             "Laboratory",
-            self._create_institution_widget(about_info["laboratory"]),
+            self._create_institution_widget(about_info.laboratory),
         )
         # Add the university information
         information_layout.addRow(
             "University",
-            self._create_institution_widget(about_info["university"]),
+            self._create_institution_widget(about_info.university),
         )
         # Attach the information grid
         layout.addLayout(information_layout)
@@ -74,8 +75,9 @@ class AboutWindow(QDialog):
         logos_layout.setSpacing(24)
         logos_layout.addStretch(1)
         # Add each available institution logo
-        for institution in (about_info["laboratory"], about_info["university"]):
-            logo_label = self._create_logo_label(institution["logo"])
+        for institution in (about_info.laboratory, about_info.university):
+            logo_path = institution.logos.dark if is_dark_mode() else institution.logos.light
+            logo_label = self._create_logo_label(logo_path)
             if logo_label is not None:
                 logos_layout.addWidget(logo_label)
         logos_layout.addStretch(1)
@@ -101,9 +103,9 @@ class AboutWindow(QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
         # Add the institution name
-        layout.addWidget(self._create_value_label(institution["name"], word_wrap=False))
+        layout.addWidget(self._create_value_label(institution.name, word_wrap=False))
         # Add the website action when a URL is configured
-        url = institution.get("url")
+        url = institution.url
         if url:
             link_button = QPushButton(widget)
             link_button.setFixedSize(20, 20)
@@ -118,7 +120,7 @@ class AboutWindow(QDialog):
             link_button.setCursor(Qt.CursorShape.PointingHandCursor)
             link_button.setIcon(QIcon(str(get_external_link_icon_file_path(is_dark_mode()))))
             link_button.setToolTip(url)
-            link_button.setAccessibleName(f"Open {institution['name']} website")
+            link_button.setAccessibleName(f"Open {institution.name} website")
             link_button.clicked.connect(
                 lambda _checked=False, target_url=url: QDesktopServices.openUrl(QUrl(target_url))
             )
@@ -133,14 +135,18 @@ class AboutWindow(QDialog):
         layout.addStretch(1)
         return widget
 
-    def _create_logo_label(self, logo_file_name: str) -> QLabel | None:
-        # Resolve the logo variant for the active color theme
-        logo_file_path = get_logo_file_path(logo_file_name, is_dark_mode())
-        # Load the logo image
-        pixmap = QPixmap(str(logo_file_path))
+    def _create_logo_label(self, logo_path: str) -> QLabel | None:
+        # Download and load the logo image
+        try:
+            logo_data = get_about_logo(logo_path)
+        except (RuntimeError, ValueError) as exc:
+            logger.warning(str(exc))
+            return None
+        pixmap = QPixmap()
+        pixmap.loadFromData(logo_data, "PNG")
         # Skip an unavailable or invalid image
         if pixmap.isNull():
-            logger.warning(f"Could not load about logo: {logo_file_path}")
+            logger.warning(f"Could not decode About logo: {logo_path}")
             return None
         # Create the fixed logical logo area
         logo_label = QLabel(self)

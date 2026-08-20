@@ -5,12 +5,18 @@
   },
   "laboratory": {
     "name": "Center for Physics and Engineering in Health (CFIS)",
-    "logo": "cfis.png",
+    "logos": {
+      "light": "/api/v1/about/logos/cfis/light",
+      "dark": "/api/v1/about/logos/cfis/dark"
+    },
     "url": "https://cfis.ufro.cl"
   },
   "university": {
     "name": "University of La Frontera",
-    "logo": "ufro.png",
+    "logos": {
+      "light": "/api/v1/about/logos/ufro/light",
+      "dark": "/api/v1/about/logos/ufro/dark"
+    },
     "url": "https://www.ufro.cl"
   }
 }
