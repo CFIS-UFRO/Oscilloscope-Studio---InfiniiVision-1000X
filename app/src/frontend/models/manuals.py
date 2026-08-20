@@ -1,6 +1,6 @@
-"""Manual data models and validation."""
+"""Manual data models and collection validation."""
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import BaseModel, Field, RootModel
 
 # --------------------------------------------------------------------------------------------------
 # Models
@@ -8,13 +8,9 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 class Manual(BaseModel):
     """Indexed manual metadata."""
 
-    model_config = ConfigDict(extra="forbid")
-
     id: str = Field(min_length=1)
     title: str = Field(min_length=1)
     file: str = Field(min_length=1)
-
 # --------------------------------------------------------------------------------------------------
-# Validation
-# --------------------------------------------------------------------------------------------------
-MANUALS_ADAPTER = TypeAdapter(list[Manual])
+class Manuals(RootModel[list[Manual]]):
+    """Validated collection of indexed manuals."""

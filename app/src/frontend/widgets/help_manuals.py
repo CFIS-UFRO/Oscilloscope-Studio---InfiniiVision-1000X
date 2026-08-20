@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.frontend.utils.manual import get_manuals
+from src.frontend.utils.manuals import get_manuals
 from src.frontend.utils.paths import HELP_DIR
 from src.frontend.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
 
@@ -74,7 +74,7 @@ class HelpManuals(QGroupBox):
         splitter.addWidget(self._manual_viewer)
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
-        for manual in self._manuals:
+        for manual in self._manuals.root:
             item = QListWidgetItem(manual.title, self._manual_list)
             item.setData(MANUAL_ID_ROLE, manual.id)
             item.setData(MANUAL_FILE_ROLE, manual.file)
