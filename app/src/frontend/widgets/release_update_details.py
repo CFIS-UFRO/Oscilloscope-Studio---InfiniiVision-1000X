@@ -2,7 +2,8 @@
 
 from PySide6.QtWidgets import QGridLayout, QGroupBox, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from src.utils.releases import ReleaseUpdate, format_release_entries_html
+from src.contracts.releases import ReleaseUpdateResponse
+from src.frontend.utils.releases import format_release_entries_html
 from src.frontend.widgets.html_viewer import HtmlViewer
 
 # --------------------------------------------------------------------------------------------------
@@ -11,7 +12,11 @@ from src.frontend.widgets.html_viewer import HtmlViewer
 class ReleaseUpdateDetails(QGroupBox):
     """Display installed/latest versions and published release notes."""
 
-    def __init__(self, release_update: ReleaseUpdate, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        release_update: ReleaseUpdateResponse,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__("Release information", parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout = QVBoxLayout(self)

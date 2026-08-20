@@ -14,15 +14,15 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
-from src.utils.logging import logger
-from src.utils.paths import PYPROJECT_FILE_PATH
-from src.utils.releases import get_pyproject_version
 from src.frontend.widgets.footer_widget import FooterWidget
 from src.frontend.widgets.header_widget import HeaderWidget
 from src.frontend.widgets.terminal_widget import TerminalWidget
 from src.frontend.windows.about_window import AboutWindow
 from src.frontend.windows.help_window import HelpWindow
 from src.frontend.windows.release_update_window import ReleaseUpdateWindow
+from src.utils.logging import logger
+from src.utils.paths import PYPROJECT_FILE_PATH
+from src.utils.versions import get_pyproject_version
 
 # --------------------------------------------------------------------------------------------------
 # Main window
@@ -33,11 +33,13 @@ class MainWindow(QMainWindow):
     def __init__(
         self,
         restart_callback: Callable[[], None] | None = None,
+        apply_update_callback: Callable[[], None] | None = None,
         quit_callback: Callable[[], None] | None = None,
     ) -> None:
         super().__init__()
         # Application callbacks
         self._restart_callback = restart_callback
+        self._apply_update_callback = apply_update_callback
         self._quit_callback = quit_callback
         # Auxiliary windows
         self._about_window: AboutWindow | None = None
@@ -170,7 +172,7 @@ class MainWindow(QMainWindow):
         # Lazy initialization
         if self._release_update_window is None:
             self._release_update_window = ReleaseUpdateWindow(
-                restart_callback=self._restart_callback,
+                apply_update_callback=self._apply_update_callback,
                 parent=self,
             )
         return self._release_update_window

@@ -16,3 +16,4 @@ TMP_DIR: Path = APP_DIR / "tmp"
 # Files
 # --------------------------------------------------------------------------------------------------
 ABOUT_FILE_PATH: Path = ASSETS_DIR / "about.json"
+PENDING_UPDATE_FILE_PATH: Path = TMP_DIR / "pending_update.json"

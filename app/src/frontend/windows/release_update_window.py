@@ -5,7 +5,6 @@ from collections.abc import Callable
 
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QHBoxLayout,
     QLabel,
@@ -15,11 +14,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.config import APP_NAME, RESTART_EXIT_CODE
+from src.config import APP_NAME
+from src.contracts.releases import ReleaseStageResponse, ReleaseUpdateResponse
+from src.frontend.utils.releases import ReleaseUpdateChecker, ReleaseUpdateStager
+from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 from src.utils.logging import logger
 from src.utils.paths import PROJECT_DIR
-from src.utils.releases import ReleaseUpdate, ReleaseUpdateChecker, install_release_update
-from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 
 # --------------------------------------------------------------------------------------------------
 # Dialog
@@ -29,13 +29,13 @@ class ReleaseUpdateWindow(QDialog):
 
     def __init__(
         self,
-        restart_callback: Callable[[], None] | None = None,
+        apply_update_callback: Callable[[], None] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         # Update state
-        self._release_update: ReleaseUpdate | None = None
-        self._restart_callback = restart_callback
+        self._release_update: ReleaseUpdateResponse | None = None
+        self._apply_update_callback = apply_update_callback
         self._updates_disabled_by_git = (PROJECT_DIR / ".git").exists()
         self._silent_check = False
         self._allow_result_window = True
@@ -44,6 +44,9 @@ class ReleaseUpdateWindow(QDialog):
         self._update_checker = ReleaseUpdateChecker(self)
         self._update_checker.succeeded.connect(self._handle_check_success)
         self._update_checker.failed.connect(self._handle_check_failure)
+        self._update_stager = ReleaseUpdateStager(self)
+        self._update_stager.succeeded.connect(self._handle_stage_success)
+        self._update_stager.failed.connect(self._handle_stage_failure)
         # Dialog configuration
         self.setWindowTitle("Updates")
         self.resize(700, 500)
@@ -117,12 +120,14 @@ class ReleaseUpdateWindow(QDialog):
 
     def done(self, result: int) -> None:
         """Close the dialog without reopening it when an active check completes."""
+        if self._update_stager.is_running:
+            return
         if self._update_checker.is_running:
             self._allow_result_window = False
         super().done(result)
 
-    @Slot(ReleaseUpdate)
-    def _handle_check_success(self, release_update: ReleaseUpdate) -> None:
+    @Slot(ReleaseUpdateResponse)
+    def _handle_check_success(self, release_update: ReleaseUpdateResponse) -> None:
         self._release_update = release_update
         if not release_update.is_update_available and self._silent_check:
             return
@@ -150,7 +155,7 @@ class ReleaseUpdateWindow(QDialog):
         self._update_button.setEnabled(False)
         self._close_button.setDefault(True)
 
-    def _show_release_details(self, release_update: ReleaseUpdate) -> None:
+    def _show_release_details(self, release_update: ReleaseUpdateResponse) -> None:
         self._status_label.hide()
         self._details = ReleaseUpdateDetails(release_update, self)
         self._layout.insertWidget(0, self._details, 1)
@@ -177,19 +182,20 @@ class ReleaseUpdateWindow(QDialog):
         if answer != QMessageBox.StandardButton.Yes:
             return
         self._update_button.setEnabled(False)
-        self._update_button.setText("Updating...")
-        QApplication.processEvents()
-        try:
-            install_release_update(self._release_update)
-        except Exception as exc:
-            logger.exception("Update installation failed")
-            self._update_button.setText("Install update")
-            self._update_button.setEnabled(self._can_install_update)
-            QMessageBox.warning(self, "Update failed", str(exc))
+        self._update_button.setText("Preparing update...")
+        self._close_button.setEnabled(False)
+        if not self._update_stager.start():
             return
-        if self._restart_callback is not None:
-            self._restart_callback()
-            return
-        app = QApplication.instance()
-        if app is not None:
-            app.exit(RESTART_EXIT_CODE)
+
+    @Slot(ReleaseStageResponse)
+    def _handle_stage_success(self, staged_update: ReleaseStageResponse) -> None:
+        logger.info(f"Requesting installation of release update: {staged_update.version}")
+        if self._apply_update_callback is not None:
+            self._apply_update_callback()
+
+    @Slot(str)
+    def _handle_stage_failure(self, error_message: str) -> None:
+        self._update_button.setText("Install update")
+        self._update_button.setEnabled(self._can_install_update)
+        self._close_button.setEnabled(True)
+        QMessageBox.warning(self, "Update failed", error_message)
