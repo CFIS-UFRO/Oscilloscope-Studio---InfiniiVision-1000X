@@ -15,9 +15,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from src.frontend.utils.manual import get_manuals
 from src.frontend.utils.paths import HELP_DIR
 from src.frontend.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
-from src.utils.help import get_help_manuals
 
 # --------------------------------------------------------------------------------------------------
 # Item data roles
@@ -39,7 +39,7 @@ class HelpManuals(QGroupBox):
     ) -> None:
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self._manuals = get_help_manuals()
+        self._manuals = get_manuals()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(0)
@@ -75,10 +75,10 @@ class HelpManuals(QGroupBox):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         for manual in self._manuals:
-            item = QListWidgetItem(manual["title"], self._manual_list)
-            item.setData(MANUAL_ID_ROLE, manual["id"])
-            item.setData(MANUAL_FILE_ROLE, manual["file"])
-            manual_file_path = HELP_DIR / manual["file"]
+            item = QListWidgetItem(manual.title, self._manual_list)
+            item.setData(MANUAL_ID_ROLE, manual.id)
+            item.setData(MANUAL_FILE_ROLE, manual.file)
+            manual_file_path = HELP_DIR / manual.file
             try:
                 raw_html = manual_file_path.read_text(encoding="utf-8")
             except OSError:
