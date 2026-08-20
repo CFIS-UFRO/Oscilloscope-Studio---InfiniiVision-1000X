@@ -1,15 +1,10 @@
 """Application release and update contracts."""
 
 from datetime import datetime
-from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-# --------------------------------------------------------------------------------------------------
-# Types
-# --------------------------------------------------------------------------------------------------
-SemanticVersion = Annotated[str, Field(pattern=r"^\d+\.\d+\.\d+$")]
-Sha256Digest = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+from src.contracts.types import SemanticVersion, Sha256Digest
 
 # --------------------------------------------------------------------------------------------------
 # Release metadata
@@ -42,14 +37,9 @@ class ReleaseUpdateResponse(BaseModel):
 
     current_version: SemanticVersion
     latest_version: SemanticVersion
+    is_update_available: bool
+    is_git_repository: bool
     releases: list[ReleaseEntry]
-
-    @property
-    def is_update_available(self) -> bool:
-        """Return whether the published release is newer than the installed version."""
-        current_version = tuple(int(part) for part in self.current_version.split("."))
-        latest_version = tuple(int(part) for part in self.latest_version.split("."))
-        return latest_version > current_version
 # --------------------------------------------------------------------------------------------------
 class ReleaseStageResponse(BaseModel):
     """Confirm that an application update is ready for the external updater."""

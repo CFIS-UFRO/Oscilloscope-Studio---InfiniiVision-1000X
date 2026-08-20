@@ -2,13 +2,22 @@
 
 from fastapi import APIRouter
 
+from src.contracts.general import ApplicationInfoResponse
 from src.contracts.health import HealthResponse
+from src.utils.versions import get_pyproject_version
 
 # --------------------------------------------------------------------------------------------------
 # Router
 # --------------------------------------------------------------------------------------------------
 router = APIRouter(tags=["General"])
 
+# --------------------------------------------------------------------------------------------------
+# Application information
+# --------------------------------------------------------------------------------------------------
+@router.get("/info", response_model=ApplicationInfoResponse)
+async def get_application_info() -> ApplicationInfoResponse:
+    """Return general information about the running application."""
+    return ApplicationInfoResponse(version=get_pyproject_version())
 # --------------------------------------------------------------------------------------------------
 # Health
 # --------------------------------------------------------------------------------------------------

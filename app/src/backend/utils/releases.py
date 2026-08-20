@@ -25,7 +25,7 @@ from src.contracts.releases import (
     ReleaseUpdateResponse,
 )
 from src.utils.logging import logger
-from src.utils.paths import PYPROJECT_FILE_PATH
+from src.utils.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
 from src.utils.versions import get_pyproject_version, is_version_newer
 
 # --------------------------------------------------------------------------------------------------
@@ -65,6 +65,8 @@ def get_latest_release_update() -> ReleaseUpdateResponse:
     return ReleaseUpdateResponse(
         current_version=current_version,
         latest_version=latest_version,
+        is_update_available=is_version_newer(latest_version, current_version),
+        is_git_repository=is_git_repository(),
         releases=resolved_release.metadata.releases,
     )
 
@@ -73,6 +75,8 @@ def get_latest_release_update() -> ReleaseUpdateResponse:
 # --------------------------------------------------------------------------------------------------
 def stage_latest_release_update() -> ReleaseStageResponse:
     """Download and validate the latest release for the external update script."""
+    if is_git_repository():
+        raise ValueError("In-app updates are disabled in a Git repository.")
     PENDING_UPDATE_FILE_PATH.unlink(missing_ok=True)
     current_version = get_pyproject_version(PYPROJECT_FILE_PATH)
     resolved_release = _resolve_latest_release()
@@ -95,6 +99,13 @@ def stage_latest_release_update() -> ReleaseStageResponse:
     )
     logger.info(f"Release update ready to apply: {metadata.version}")
     return ReleaseStageResponse(version=metadata.version)
+
+# --------------------------------------------------------------------------------------------------
+# Installation type
+# --------------------------------------------------------------------------------------------------
+def is_git_repository() -> bool:
+    """Return whether the application is running from a Git repository."""
+    return (PROJECT_DIR / ".git").exists()
 
 # --------------------------------------------------------------------------------------------------
 # Internal requests

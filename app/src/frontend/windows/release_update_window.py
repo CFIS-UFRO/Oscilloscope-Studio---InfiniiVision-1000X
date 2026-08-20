@@ -19,7 +19,6 @@ from src.contracts.releases import ReleaseStageResponse, ReleaseUpdateResponse
 from src.frontend.utils.releases import ReleaseUpdateChecker, ReleaseUpdateStager
 from src.frontend.widgets.release_update_details import ReleaseUpdateDetails
 from src.utils.logging import logger
-from src.utils.paths import PROJECT_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Dialog
@@ -36,7 +35,6 @@ class ReleaseUpdateWindow(QDialog):
         # Update state
         self._release_update: ReleaseUpdateResponse | None = None
         self._apply_update_callback = apply_update_callback
-        self._updates_disabled_by_git = (PROJECT_DIR / ".git").exists()
         self._silent_check = False
         self._allow_result_window = True
         self._details: ReleaseUpdateDetails | None = None
@@ -72,17 +70,17 @@ class ReleaseUpdateWindow(QDialog):
         actions_layout.addStretch(1)
         self._layout.addLayout(actions_layout)
         # Development-checkout warning
-        if self._updates_disabled_by_git:
-            git_warning_label = QLabel(
-                "Git repository detected.\n"
-                "In-app updates are disabled.\n"
-                "Run 'git pull' from the project directory to download and apply the latest changes.",
-                self,
-            )
-            git_warning_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            git_warning_label.setWordWrap(True)
-            git_warning_label.setStyleSheet("font-weight: 600;")
-            self._layout.addWidget(git_warning_label)
+        self._update_disabled_label = QLabel(
+            "Git repository detected.\n"
+            "In-app updates are disabled.\n"
+            "Run 'git pull' from the project directory to download and apply the latest changes.",
+            self,
+        )
+        self._update_disabled_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._update_disabled_label.setWordWrap(True)
+        self._update_disabled_label.setStyleSheet("font-weight: 600;")
+        self._update_disabled_label.hide()
+        self._layout.addWidget(self._update_disabled_label)
 
     def check_for_updates(self) -> None:
         """Check for releases and show progress and results."""
@@ -151,6 +149,7 @@ class ReleaseUpdateWindow(QDialog):
             self._details = None
         self._status_label.setText(message)
         self._status_label.show()
+        self._update_disabled_label.hide()
         self._update_button.setText("Install update")
         self._update_button.setEnabled(False)
         self._close_button.setDefault(True)
@@ -159,6 +158,7 @@ class ReleaseUpdateWindow(QDialog):
         self._status_label.hide()
         self._details = ReleaseUpdateDetails(release_update, self)
         self._layout.insertWidget(0, self._details, 1)
+        self._update_disabled_label.setVisible(release_update.is_git_repository)
         self._update_button.setText("Install update")
         self._update_button.setEnabled(self._can_install_update)
         self._close_button.setDefault(not self._can_install_update)
@@ -168,7 +168,7 @@ class ReleaseUpdateWindow(QDialog):
         return (
             self._release_update is not None
             and self._release_update.is_update_available
-            and not self._updates_disabled_by_git
+            and not self._release_update.is_git_repository
         )
 
     def _handle_update_clicked(self) -> None:

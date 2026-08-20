@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.config import APP_NAME
+from src.frontend.utils.general import get_application_info
 from src.frontend.widgets.footer_widget import FooterWidget
 from src.frontend.widgets.header_widget import HeaderWidget
 from src.frontend.widgets.terminal_widget import TerminalWidget
@@ -21,8 +22,6 @@ from src.frontend.windows.about_window import AboutWindow
 from src.frontend.windows.help_window import HelpWindow
 from src.frontend.windows.release_update_window import ReleaseUpdateWindow
 from src.utils.logging import logger
-from src.utils.paths import PYPROJECT_FILE_PATH
-from src.utils.versions import get_pyproject_version
 
 # --------------------------------------------------------------------------------------------------
 # Main window
@@ -48,7 +47,7 @@ class MainWindow(QMainWindow):
         # Runtime state
         self._shortcuts: list[QShortcut] = []
         self._closing_from_action = False
-        self._version = get_pyproject_version(PYPROJECT_FILE_PATH)
+        self._version = get_application_info().version
         # Window configuration
         self.setWindowTitle(APP_NAME)
         self.resize(1_200, 720)
