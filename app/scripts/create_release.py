@@ -5,26 +5,26 @@ import subprocess
 import sys
 from pathlib import Path
 
-from src.backend.utils.tmp import get_tmp_file_path
 from src.config import APP_NAME, RELEASE_REPOSITORY_NAME
 from src.utils.logging import init_logging, logger
 from src.utils.paths import (
+    APP_DIR,
     PROJECT_DIR,
     PYPROJECT_FILE_PATH,
     RELEASES_FILE_PATH,
     UV_LOCK_FILE_PATH,
 )
-from src.utils.releases import (
+from scripts.utils.releases import (
     append_release_entry,
     calculate_file_sha256,
     compress_paths,
     get_git_managed_file_paths,
-    get_pyproject_version,
     get_release_entries,
     get_release_file_stem,
     update_pyproject_version,
     write_release_metadata,
 )
+from src.utils.versions import get_pyproject_version
 
 # --------------------------------------------------------------------------------------------------
 # Constants
@@ -34,6 +34,7 @@ UPDATE_TYPE_ALIASES = {
     "2": "minor",
     "3": "bugfix",
 }
+RELEASE_OUTPUT_DIR = APP_DIR / "tmp"
 
 # --------------------------------------------------------------------------------------------------
 # CLI
@@ -57,13 +58,13 @@ def main() -> int:
     logger.info(f"Updated project version: {previous_version} -> {new_version}")
     append_release_entry(RELEASES_FILE_PATH, new_version, release_changes)
     release_file_stem = get_release_file_stem(new_version)
-    archive_file_path = get_tmp_file_path(f"{release_file_stem}.zip")
-    metadata_file_path = get_tmp_file_path(f"{release_file_stem}.json")
+    archive_file_path = RELEASE_OUTPUT_DIR / f"{release_file_stem}.zip"
+    metadata_file_path = RELEASE_OUTPUT_DIR / f"{release_file_stem}.json"
     release_file_paths = get_git_managed_file_paths(PROJECT_DIR)
     compress_paths(PROJECT_DIR, release_file_paths, archive_file_path)
     archive_sha256 = calculate_file_sha256(archive_file_path)
     write_release_metadata(
-        metadata_file_path.name,
+        metadata_file_path,
         new_version,
         archive_sha256,
         get_release_entries(RELEASES_FILE_PATH),
