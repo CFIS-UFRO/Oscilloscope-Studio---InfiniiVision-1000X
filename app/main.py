@@ -93,9 +93,9 @@ def main() -> int:
     try:
         # Backend startup
         backend_process = start_process("src.backend")
-        exit_code = wait_for_backend(backend_process)
-        if exit_code is not None:
-            return exit_code
+        backend_exit_code = wait_for_backend(backend_process)
+        if backend_exit_code is not None:
+            return backend_exit_code
         # Frontend startup
         frontend_process = start_process("src.frontend")
         # Runtime monitoring
