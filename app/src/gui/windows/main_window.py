@@ -70,8 +70,6 @@ class MainWindow(QMainWindow):
         self._connect_signals()
         self._configure_shortcuts()
         self._configure_remote_control()
-        # Welcome event
-        QTimer.singleShot(2000, lambda: logger.info(f"Welcome to {APP_NAME}"))
 
     def _build_content(self) -> None:
         # Central container
