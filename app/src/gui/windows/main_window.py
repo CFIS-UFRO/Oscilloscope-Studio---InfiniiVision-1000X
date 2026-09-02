@@ -4,7 +4,7 @@ import time
 from collections.abc import Callable
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent, QCursor, QKeySequence, QShortcut
+from PySide6.QtGui import QCloseEvent, QCursor
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
@@ -43,7 +43,6 @@ class MainWindow(QMainWindow):
         self._help_window: HelpWindow | None = None
         self._release_update_window: ReleaseUpdateWindow | None = None
         # Runtime state
-        self._shortcuts: list[QShortcut] = []
         self._closing_from_action = False
         self._version = version
         # Window configuration
@@ -52,7 +51,6 @@ class MainWindow(QMainWindow):
         # Interface setup
         self._build_content()
         self._connect_signals()
-        self._configure_shortcuts()
 
     def _build_content(self) -> None:
         # Central container
@@ -99,21 +97,6 @@ class MainWindow(QMainWindow):
         self._header_widget.help_requested.connect(self._open_help_window)
         self._header_widget.about_requested.connect(self._open_about_window)
 
-    def _configure_shortcuts(self) -> None:
-        # Restart shortcuts
-        if self._restart_callback is not None:
-            for sequence in ("Ctrl+R", "Meta+R"):
-                shortcut = QShortcut(QKeySequence(sequence), self)
-                shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
-                shortcut.activated.connect(self._restart_callback)
-                self._shortcuts.append(shortcut)
-        # Quit shortcuts
-        for sequence in ("Ctrl+Q", "Meta+Q"):
-            shortcut = QShortcut(QKeySequence(sequence), self)
-            shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
-            shortcut.activated.connect(self._quit)
-            self._shortcuts.append(shortcut)
-
     def append_terminal_message(self, level: str, text: str) -> None:
         """Append a line to the in-app terminal panel."""
         self._terminal_widget.append_message(time.time(), level, text)
@@ -143,14 +126,6 @@ class MainWindow(QMainWindow):
         event.ignore()
         self._closing_from_action = True
         self._quit_callback()
-
-    def _quit(self) -> None:
-        # Close state
-        self._closing_from_action = True
-        if self._quit_callback is not None:
-            self._quit_callback()
-            return
-        self.close()
 
     def _open_help_window(self) -> None:
         # Lazy initialization

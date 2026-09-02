@@ -2,8 +2,8 @@
 
 import sys
 
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication
 
 from src.core.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
@@ -34,6 +34,8 @@ def run_gui(remote_control: RemoteControl) -> int:
         restart_callback=lambda: _restart(app),
         quit_callback=lambda: _quit(app),
     )
+    # Application shortcuts
+    _configure_shortcuts(app, window)
     # Remote control
     _configure_remote_control(remote_control, window)
     # Startup tasks
@@ -41,6 +43,21 @@ def run_gui(remote_control: RemoteControl) -> int:
     QTimer.singleShot(0, window.check_for_updates_on_startup)
     # Event loop
     return app.exec()
+
+# --------------------------------------------------------------------------------------------------
+# Shortcuts
+# --------------------------------------------------------------------------------------------------
+def _configure_shortcuts(app: QApplication, window: MainWindow) -> None:
+    """Install the application-wide restart and quit keyboard shortcuts."""
+    bindings = (
+        (("Ctrl+R", "Meta+R"), lambda: _restart(app)),
+        (("Ctrl+Q", "Meta+Q"), lambda: _quit(app)),
+    )
+    for sequences, handler in bindings:
+        for sequence in sequences:
+            shortcut = QShortcut(QKeySequence(sequence), window)
+            shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
+            shortcut.activated.connect(handler)
 
 # --------------------------------------------------------------------------------------------------
 # Remote control
