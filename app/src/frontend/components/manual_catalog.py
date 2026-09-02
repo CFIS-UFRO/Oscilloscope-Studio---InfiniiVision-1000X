@@ -4,7 +4,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-from src.frontend.models.manual_collection import ManualCollection
+from src.frontend.models.manual import ManualCollection
 from src.frontend.utils.paths import HELP_INDEX_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
