@@ -3,7 +3,7 @@
 import time
 from collections.abc import Callable
 
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent, QCursor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -13,14 +13,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from pydantic import BaseModel
 
 from src.core.config import APP_NAME
-from src.core.logging import logger
-from src.core.paths import PYPROJECT_FILE_PATH
-from src.core.releases import get_pyproject_version
-from src.core.remote import RemoteControl
-from src.gui.remote.controller import RemoteControlController
 from src.gui.widgets.footer_widget import FooterWidget
 from src.gui.widgets.header_widget import HeaderWidget
 from src.gui.widgets.terminal_widget import TerminalWidget
@@ -29,29 +23,19 @@ from src.gui.windows.help_window import HelpWindow
 from src.gui.windows.release_update_window import ReleaseUpdateWindow
 
 # --------------------------------------------------------------------------------------------------
-# Remote command parameters
-# --------------------------------------------------------------------------------------------------
-class TerminalAppendParams(BaseModel):
-    """Parameters for the ``terminal.append`` remote command."""
-
-    text: str
-    level: str = "INFO"
-
-# --------------------------------------------------------------------------------------------------
 # Main window
 # --------------------------------------------------------------------------------------------------
 class MainWindow(QMainWindow):
-    """Main application window and reusable application shell."""
+    """Main application window and top-level actions."""
 
     def __init__(
         self,
-        remote_control: RemoteControl | None = None,
+        version: str,
         restart_callback: Callable[[], None] | None = None,
         quit_callback: Callable[[], None] | None = None,
     ) -> None:
         super().__init__()
         # Application callbacks
-        self._remote_control = remote_control
         self._restart_callback = restart_callback
         self._quit_callback = quit_callback
         # Auxiliary windows
@@ -61,7 +45,7 @@ class MainWindow(QMainWindow):
         # Runtime state
         self._shortcuts: list[QShortcut] = []
         self._closing_from_action = False
-        self._version = get_pyproject_version(PYPROJECT_FILE_PATH)
+        self._version = version
         # Window configuration
         self.setWindowTitle(APP_NAME)
         self.resize(1_200, 720)
@@ -69,7 +53,6 @@ class MainWindow(QMainWindow):
         self._build_content()
         self._connect_signals()
         self._configure_shortcuts()
-        self._configure_remote_control()
 
     def _build_content(self) -> None:
         # Central container
@@ -131,29 +114,9 @@ class MainWindow(QMainWindow):
             shortcut.activated.connect(self._quit)
             self._shortcuts.append(shortcut)
 
-    def _configure_remote_control(self) -> None:
-        if self._remote_control is None:
-            return
-        self._remote_controller = RemoteControlController(self._remote_control, parent=self)
-        self._register_remote_commands()
-
-    def _register_remote_commands(self) -> None:
-        # Terminal output
-        self._remote_control.register(
-            "terminal.append",
-            self._remote_append_terminal,
-            params_model=TerminalAppendParams,
-            description="Append a line to the in-app terminal panel.",
-        )
-        # Application version
-        self._remote_control.register(
-            "app.version",
-            lambda: self._version,
-            description="Return the running application version.",
-        )
-
-    def _remote_append_terminal(self, params: TerminalAppendParams) -> None:
-        self._terminal_widget.append_message(time.time(), params.level, params.text)
+    def append_terminal_message(self, level: str, text: str) -> None:
+        """Append a line to the in-app terminal panel."""
+        self._terminal_widget.append_message(time.time(), level, text)
 
     def center_on_screen(self) -> None:
         """Center the window on the screen containing the mouse cursor."""
