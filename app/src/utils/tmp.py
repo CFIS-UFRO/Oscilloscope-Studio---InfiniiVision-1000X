@@ -4,14 +4,14 @@ import shutil
 from pathlib import Path
 
 from src.utils.logging import logger
-from src.utils.paths import get_tmp_dir_path
+from src.utils.paths import TMP_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Temporary files
 # --------------------------------------------------------------------------------------------------
 def get_tmp_file_path(relative_path: str) -> Path:
     """Create parent directories under tmp and return the resolved file path."""
-    full_path = get_tmp_dir_path() / relative_path
+    full_path = TMP_DIR / relative_path
     full_path.parent.mkdir(parents=True, exist_ok=True)
     return full_path
 # --------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ def create_file(relative_path: str, content: bytes | str, permissions: int | Non
 # --------------------------------------------------------------------------------------------------
 def clean_tmp_dir() -> bool:
     """Remove the application temporary directory and its contents."""
-    tmp_dir_path = get_tmp_dir_path()
+    tmp_dir_path = TMP_DIR
     if not tmp_dir_path.exists():
         return False
     shutil.rmtree(tmp_dir_path)

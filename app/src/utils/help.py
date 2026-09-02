@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 from typing import TypedDict
 
-from src.utils.paths import get_help_index_file_path
+from src.utils.paths import HELP_INDEX_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Data
@@ -22,7 +22,7 @@ class HelpManual(TypedDict):
 @lru_cache(maxsize=1)
 def get_help_manuals() -> list[HelpManual]:
     """Load and validate the configured help manuals."""
-    index_file_path = get_help_index_file_path()
+    index_file_path = HELP_INDEX_FILE_PATH
     data = json.loads(index_file_path.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError(f"Help index must contain a list: {index_file_path}")

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 
 from src.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
 from src.utils.logging import init_logging, logger
-from src.utils.paths import get_icon_file_path
+from src.utils.paths import ICON_FILE_PATH
 from src.utils.tmp import clean_tmp_dir
 from src.windows.main_window import MainWindow
 
@@ -37,7 +37,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORGANIZATION_NAME)
-    app.setWindowIcon(QIcon(str(get_icon_file_path())))
+    app.setWindowIcon(QIcon(str(ICON_FILE_PATH)))
     window = MainWindow(
         restart_callback=lambda: restart_app(app),
         quit_callback=lambda: quit_app(app),

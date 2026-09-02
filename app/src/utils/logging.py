@@ -13,7 +13,7 @@ from typing import TextIO
 from colorlog import ColoredFormatter
 from PySide6.QtCore import QObject, Signal
 
-from src.utils.paths import get_log_file_path
+from src.utils.paths import LOG_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Constants
@@ -97,7 +97,7 @@ class ExceptionHandler:
 # --------------------------------------------------------------------------------------------------
 def init_logging() -> Path:
     """Configure console, file, Qt, stream, warning, and exception logging."""
-    log_file_path = get_log_file_path()
+    log_file_path = LOG_FILE_PATH
     if getattr(logger, "_oscilloscope_studio_initialized", False):
         return log_file_path
     log_file_path.parent.mkdir(parents=True, exist_ok=True)

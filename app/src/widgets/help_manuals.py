@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.utils.help import get_help_manuals
-from src.utils.paths import get_help_dir_path
+from src.utils.paths import HELP_DIR
 from src.widgets.html_viewer import HtmlViewer, HtmlViewerStyle
 
 # --------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class HelpManuals(QGroupBox):
         self._search_timer = QTimer(left_panel)
         self._search_timer.setSingleShot(True)
         self._search_timer.timeout.connect(self._apply_search_filter)
-        help_dir_path = get_help_dir_path()
+        help_dir_path = HELP_DIR
         self._manual_viewer = HtmlViewer(
             HtmlViewerStyle(include_links=True, include_h1=True, h2_margin="24px 0 8px"),
             splitter,
@@ -156,7 +156,7 @@ class HelpManuals(QGroupBox):
         source_path = source_path.split("#", 1)[0].split("?", 1)[0]
         if not source_path:
             return None
-        help_dir_path = get_help_dir_path()
+        help_dir_path = HELP_DIR
         if url.isLocalFile():
             try:
                 return str(

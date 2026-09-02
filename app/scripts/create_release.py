@@ -8,10 +8,10 @@ from pathlib import Path
 from src.config import APP_NAME, RELEASE_REPOSITORY_NAME
 from src.utils.logging import init_logging, logger
 from src.utils.paths import (
-    get_project_dir_path,
-    get_pyproject_file_path,
-    get_releases_file_path,
-    get_uv_lock_file_path,
+    PROJECT_DIR,
+    PYPROJECT_FILE_PATH,
+    RELEASES_FILE_PATH,
+    UV_LOCK_FILE_PATH,
 )
 from src.utils.releases import (
     append_release_entry,
@@ -43,15 +43,15 @@ def main() -> int:
     init_logging()
     logger.info("Starting release process...")
     validate_release_requirements()
-    validate_clean_worktree(get_project_dir_path())
+    validate_clean_worktree(PROJECT_DIR)
     validate_github_authentication()
     validate_release_repository()
     update_type = ask_update_type()
     release_changes = ask_release_changes()
-    project_dir_path = get_project_dir_path()
-    pyproject_file_path = get_pyproject_file_path()
-    uv_lock_file_path = get_uv_lock_file_path()
-    releases_file_path = get_releases_file_path()
+    project_dir_path = PROJECT_DIR
+    pyproject_file_path = PYPROJECT_FILE_PATH
+    uv_lock_file_path = UV_LOCK_FILE_PATH
+    releases_file_path = RELEASES_FILE_PATH
     previous_version = get_pyproject_version(pyproject_file_path)
     new_version = update_pyproject_version(pyproject_file_path, uv_lock_file_path, update_type)
     logger.info(f"Updated project version: {previous_version} -> {new_version}")
@@ -175,7 +175,7 @@ def create_github_release(version: str, asset_file_paths: list[Path]) -> None:
             "--notes",
             f"Application update for {APP_NAME} {version}.",
         ],
-        cwd=get_project_dir_path(),
+        cwd=PROJECT_DIR,
     )
 # --------------------------------------------------------------------------------------------------
 def run_command(command: list[str], cwd: Path) -> None:
