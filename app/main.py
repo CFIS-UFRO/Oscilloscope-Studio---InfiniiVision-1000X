@@ -2,6 +2,7 @@
 
 from src.core.config import APP_NAME
 from src.core.logging import init_logging, logger
+from src.core.remote import RemoteControl
 from src.core.tmp import clean_tmp_dir
 from src.gui.app import run_gui
 
@@ -10,10 +11,20 @@ from src.gui.app import run_gui
 # --------------------------------------------------------------------------------------------------
 def main() -> int:
     """Initialize core services and hand control to the GUI."""
+    # Logging
     init_logging()
+    # Temporary files
     clean_tmp_dir()
+    # Startup message
     logger.info(f"Starting {APP_NAME}...")
-    return run_gui()
+    # Remote control extension
+    remote_control = RemoteControl()
+    remote_control.start()
+    # Graphical interface
+    try:
+        return run_gui(remote_control)
+    finally:
+        remote_control.stop()
 
 # --------------------------------------------------------------------------------------------------
 # Entrypoint

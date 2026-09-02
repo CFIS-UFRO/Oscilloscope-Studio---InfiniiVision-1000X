@@ -7,4 +7,5 @@ dependencies = [
     "colorlog>=6.10.1,<6.11",
     "pydantic>=2.9,<3",
     "pyside6-essentials>=6.11.1,<6.12",
+    "pyzmq>=26,<27",
 ]

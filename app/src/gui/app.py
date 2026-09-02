@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 
 from src.core.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
 from src.core.logging import logger
+from src.core.remote import RemoteControl
 from src.gui.utils.resources import ICON_FILE_PATH
 from src.gui.windows.main_window import MainWindow
 
@@ -31,13 +32,14 @@ def _about_to_quit() -> None:
 # --------------------------------------------------------------------------------------------------
 # Entry point
 # --------------------------------------------------------------------------------------------------
-def run_gui() -> int:
+def run_gui(remote_control: RemoteControl) -> int:
     """Create the Qt application, show the main window, and run the event loop."""
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORGANIZATION_NAME)
     app.setWindowIcon(QIcon(str(ICON_FILE_PATH)))
     window = MainWindow(
+        remote_control=remote_control,
         restart_callback=lambda: _restart_app(app),
         quit_callback=lambda: _quit_app(app),
     )

@@ -16,3 +16,9 @@ RELEASE_REPOSITORY_NAME = "CFIS-UFRO/Oscilloscope-Studio---InfiniiVision-1000X"
 RELEASE_REPOSITORY_URL = f"https://github.com/{RELEASE_REPOSITORY_NAME}"
 RELEASE_ARCHIVE_PREFIX = APP_SLUG
 RELEASE_HTTP_USER_AGENT = "Oscilloscope-Studio-Updater"
+
+# --------------------------------------------------------------------------------------------------
+# Remote control
+# --------------------------------------------------------------------------------------------------
+REMOTE_CONTROL_COMMAND_ENDPOINT = "tcp://127.0.0.1:52731"
+REMOTE_CONTROL_EVENT_ENDPOINT = "tcp://127.0.0.1:52732"
