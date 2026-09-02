@@ -15,11 +15,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.config import APP_NAME, RESTART_EXIT_CODE
-from src.utils.logging import logger
-from src.utils.paths import PROJECT_DIR
-from src.utils.releases import ReleaseUpdate, ReleaseUpdateChecker, install_release_update
-from src.widgets.release_update_details import ReleaseUpdateDetails
+from src.core.config import APP_NAME, RESTART_EXIT_CODE
+from src.core.logging import logger
+from src.core.paths import PROJECT_DIR
+from src.core.releases import ReleaseUpdate, install_release_update
+from src.gui.utils.release_update_checker import ReleaseUpdateChecker
+from src.gui.widgets.release_update_details import ReleaseUpdateDetails
 
 # --------------------------------------------------------------------------------------------------
 # Dialog

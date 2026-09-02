@@ -1,30 +1,20 @@
-"""Centralized filesystem paths used by the application."""
+"""Bundled GUI asset paths and theme-aware resource getters."""
 
 from pathlib import Path
 
-from src.config import APP_SLUG
+from src.core.paths import SRC_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Directories
 # --------------------------------------------------------------------------------------------------
-APP_DIR: Path = Path(__file__).resolve().parents[2]
-PROJECT_DIR: Path = APP_DIR.parent
-SRC_DIR: Path = APP_DIR / "src"
 ASSETS_DIR: Path = SRC_DIR / "assets"
 HELP_DIR: Path = ASSETS_DIR / "help"
 ICONS_DIR: Path = ASSETS_DIR / "icons"
 LOGOS_DIR: Path = ASSETS_DIR / "logos"
-LOGS_DIR: Path = APP_DIR / "logs"
-USER_DATA_DIR: Path = APP_DIR / "usr"
-TMP_DIR: Path = APP_DIR / "tmp"
 
 # --------------------------------------------------------------------------------------------------
 # Files
 # --------------------------------------------------------------------------------------------------
-PYPROJECT_FILE_PATH: Path = APP_DIR / "pyproject.toml"
-UV_LOCK_FILE_PATH: Path = APP_DIR / "uv.lock"
-RELEASES_FILE_PATH: Path = APP_DIR / "releases.json"
-LOG_FILE_PATH: Path = LOGS_DIR / f"{APP_SLUG}.log"
 ICON_FILE_PATH: Path = ASSETS_DIR / "icon.png"
 ABOUT_FILE_PATH: Path = ASSETS_DIR / "about.json"
 HELP_INDEX_FILE_PATH: Path = HELP_DIR / "index.json"

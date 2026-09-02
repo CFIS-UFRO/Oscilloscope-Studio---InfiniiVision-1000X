@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from PySide6.QtWidgets import QApplication, QTextBrowser, QWidget
 
-from src.utils.colors import is_dark_mode
+from src.gui.utils.colors import is_dark_mode
 
 # --------------------------------------------------------------------------------------------------
 # Style

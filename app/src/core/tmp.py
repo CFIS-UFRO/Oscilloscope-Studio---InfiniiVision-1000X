@@ -3,8 +3,8 @@
 import shutil
 from pathlib import Path
 
-from src.utils.logging import logger
-from src.utils.paths import TMP_DIR
+from src.core.logging import logger
+from src.core.paths import TMP_DIR
 
 # --------------------------------------------------------------------------------------------------
 # Temporary files

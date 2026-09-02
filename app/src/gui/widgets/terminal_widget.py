@@ -1,6 +1,6 @@
 """Bounded terminal-style application activity display."""
 
-from PySide6.QtCore import QDateTime, Qt, Slot
+from PySide6.QtCore import QDateTime, Slot
 from PySide6.QtGui import QColor, QFontDatabase, QTextCharFormat, QTextCursor
 from PySide6.QtWidgets import (
     QPlainTextEdit,
@@ -9,8 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.utils.logging import qt_log_handler
-from src.widgets.help_group_box import HelpGroupBox
+from src.gui.widgets.help_group_box import HelpGroupBox
 
 # --------------------------------------------------------------------------------------------------
 # Widget
@@ -64,14 +63,10 @@ class TerminalWidget(HelpGroupBox):
             "}"
         )
         layout.addWidget(self._output)
-        qt_log_handler.emitter.message_logged.connect(
-            self.append_message,
-            Qt.ConnectionType.QueuedConnection,
-        )
 
     @Slot(float, str, str)
     def append_message(self, created_at: float, level_name: str, message: str) -> None:
-        """Append one or more formatted log lines and scroll to the newest."""
+        """Append one or more timestamped, color-coded lines and scroll to the newest."""
         timestamp = QDateTime.fromMSecsSinceEpoch(
             int(created_at * 1_000)
         ).toString("HH:mm:ss")

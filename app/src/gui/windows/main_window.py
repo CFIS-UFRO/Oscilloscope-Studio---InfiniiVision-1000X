@@ -13,16 +13,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.config import APP_NAME
-from src.utils.logging import logger
-from src.utils.paths import PYPROJECT_FILE_PATH
-from src.utils.releases import get_pyproject_version
-from src.widgets.footer_widget import FooterWidget
-from src.widgets.header_widget import HeaderWidget
-from src.widgets.terminal_widget import TerminalWidget
-from src.windows.about_window import AboutWindow
-from src.windows.help_window import HelpWindow
-from src.windows.release_update_window import ReleaseUpdateWindow
+from src.core.config import APP_NAME
+from src.core.logging import logger
+from src.core.paths import PYPROJECT_FILE_PATH
+from src.core.releases import get_pyproject_version
+from src.gui.widgets.footer_widget import FooterWidget
+from src.gui.widgets.header_widget import HeaderWidget
+from src.gui.widgets.terminal_widget import TerminalWidget
+from src.gui.windows.about_window import AboutWindow
+from src.gui.windows.help_window import HelpWindow
+from src.gui.windows.release_update_window import ReleaseUpdateWindow
 
 # --------------------------------------------------------------------------------------------------
 # Main window

@@ -1,7 +1,6 @@
 """Release creation helpers and GitHub-based application updates."""
 
 import hashlib
-import html
 import json
 import re
 import shutil
@@ -13,16 +12,14 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
-
-from src.config import (
+from src.core.config import (
     RELEASE_ARCHIVE_PREFIX,
     RELEASE_HTTP_USER_AGENT,
     RELEASE_REPOSITORY_NAME,
 )
-from src.utils.logging import logger
-from src.utils.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
-from src.utils.tmp import create_file, get_tmp_file_path
+from src.core.logging import logger
+from src.core.paths import PROJECT_DIR, PYPROJECT_FILE_PATH
+from src.core.tmp import create_file, get_tmp_file_path
 
 # --------------------------------------------------------------------------------------------------
 # Constants
@@ -66,82 +63,6 @@ class ReleaseUpdate:
     def is_update_available(self) -> bool:
         """Return whether the published release is newer than the installed version."""
         return is_version_newer(self.latest_version, self.current_version)
-
-# --------------------------------------------------------------------------------------------------
-# Update check worker
-# --------------------------------------------------------------------------------------------------
-class _ReleaseUpdateWorker(QObject):
-    """Resolve the latest release without blocking the Qt event loop."""
-
-    succeeded = Signal(ReleaseUpdate)
-    failed = Signal(str)
-    finished = Signal()
-
-    @Slot()
-    def run(self) -> None:
-        try:
-            release_update = get_latest_release_update()
-        except Exception as exc:
-            logger.exception("Could not check for updates")
-            self.failed.emit(str(exc))
-        else:
-            self.succeeded.emit(release_update)
-        finally:
-            self.finished.emit()
-# --------------------------------------------------------------------------------------------------
-class ReleaseUpdateChecker(QObject):
-    """Manage asynchronous release checks and their worker-thread lifecycle."""
-
-    succeeded = Signal(ReleaseUpdate)
-    failed = Signal(str)
-
-    def __init__(self, parent: QObject | None = None) -> None:
-        super().__init__(parent)
-        self._thread: QThread | None = None
-        self._worker: _ReleaseUpdateWorker | None = None
-
-    @property
-    def is_running(self) -> bool:
-        """Return whether a release check is currently running."""
-        return self._thread is not None
-
-    def start(self) -> bool:
-        """Start a release check and return whether it was started."""
-        if self.is_running:
-            return False
-        thread = QThread(self)
-        worker = _ReleaseUpdateWorker()
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-        worker.succeeded.connect(
-            self._handle_success,
-            Qt.ConnectionType.QueuedConnection,
-        )
-        worker.failed.connect(
-            self._handle_failure,
-            Qt.ConnectionType.QueuedConnection,
-        )
-        worker.finished.connect(thread.quit)
-        thread.finished.connect(worker.deleteLater)
-        thread.finished.connect(thread.deleteLater)
-        thread.destroyed.connect(self._finish)
-        self._thread = thread
-        self._worker = worker
-        thread.start()
-        return True
-
-    @Slot(ReleaseUpdate)
-    def _handle_success(self, release_update: ReleaseUpdate) -> None:
-        self.succeeded.emit(release_update)
-
-    @Slot(str)
-    def _handle_failure(self, error_message: str) -> None:
-        self.failed.emit(error_message)
-
-    @Slot()
-    def _finish(self) -> None:
-        self._thread = None
-        self._worker = None
 
 # --------------------------------------------------------------------------------------------------
 # Versions
@@ -364,41 +285,9 @@ def extract_release_archive(archive_file_path: Path, destination_dir_path: Path)
                     target_path.chmod(permissions)
     except zipfile.BadZipFile as exc:
         raise ValueError(f"Invalid release archive: {archive_file_path}") from exc
-# --------------------------------------------------------------------------------------------------
-def format_release_entries_html(releases: list[dict[str, object]]) -> str:
-    """Format release entries as a small HTML document."""
-    if not releases:
-        return "<!doctype html><html><body><p>No release notes available.</p></body></html>"
-    parts = ["<!doctype html>", "<html>", "<body>"]
-    for release in reversed(releases):
-        version = html.escape(str(release.get("version", "Unknown")))
-        created_at_local = html.escape(_format_release_datetime_local(release.get("created_at_utc")))
-        changes = release.get("changes", [])
-        parts.append(f"<h2>Version {version}</h2>")
-        if created_at_local:
-            parts.append(f"<p><code>{created_at_local}</code></p>")
-        if isinstance(changes, list) and changes:
-            parts.append("<ul>")
-            parts.extend(f"<li>{html.escape(str(change))}</li>" for change in changes)
-            parts.append("</ul>")
-        else:
-            parts.append("<p>No changes listed.</p>")
-    parts.extend(["</body>", "</html>"])
-    return "\n".join(parts)
 
 # --------------------------------------------------------------------------------------------------
 # Internal parsing
-# --------------------------------------------------------------------------------------------------
-def _format_release_datetime_local(value: object) -> str:
-    if not isinstance(value, str) or not value:
-        return ""
-    try:
-        release_datetime = datetime.fromisoformat(value)
-    except ValueError:
-        return value
-    if release_datetime.tzinfo is None:
-        release_datetime = release_datetime.replace(tzinfo=UTC)
-    return release_datetime.astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
 # --------------------------------------------------------------------------------------------------
 def _read_json_url(url: str) -> dict[str, object]:
     request = Request(

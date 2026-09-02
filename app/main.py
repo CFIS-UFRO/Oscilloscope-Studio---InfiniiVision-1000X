@@ -1,51 +1,19 @@
-"""Oscilloscope Studio application entry point."""
+"""Oscilloscope Studio entry point: start core services, then launch the GUI."""
 
-import sys
-
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication
-
-from src.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
-from src.utils.logging import init_logging, logger
-from src.utils.paths import ICON_FILE_PATH
-from src.utils.tmp import clean_tmp_dir
-from src.windows.main_window import MainWindow
+from src.core.config import APP_NAME
+from src.core.logging import init_logging, logger
+from src.core.tmp import clean_tmp_dir
+from src.gui.app import run_gui
 
 # --------------------------------------------------------------------------------------------------
-# Application lifecycle
-# --------------------------------------------------------------------------------------------------
-def restart_app(app: QApplication) -> None:
-    """Request a launcher-level application restart."""
-    logger.info("Restart requested")
-    app.exit(RESTART_EXIT_CODE)
-# --------------------------------------------------------------------------------------------------
-def quit_app(app: QApplication) -> None:
-    """Quit the current application process."""
-    logger.info("Quit requested")
-    app.quit()
-# --------------------------------------------------------------------------------------------------
-def about_to_quit() -> None:
-    """Record application shutdown."""
-    logger.info(f"Closing {APP_NAME}...")
+# Application startup
 # --------------------------------------------------------------------------------------------------
 def main() -> int:
-    """Initialize and run the Qt application."""
+    """Initialize core services and hand control to the GUI."""
     init_logging()
     clean_tmp_dir()
     logger.info(f"Starting {APP_NAME}...")
-    app = QApplication(sys.argv)
-    app.setApplicationName(APP_NAME)
-    app.setOrganizationName(ORGANIZATION_NAME)
-    app.setWindowIcon(QIcon(str(ICON_FILE_PATH)))
-    window = MainWindow(
-        restart_callback=lambda: restart_app(app),
-        quit_callback=lambda: quit_app(app),
-    )
-    app.aboutToQuit.connect(about_to_quit)
-    window.showMaximized()
-    QTimer.singleShot(0, window.check_for_updates_on_startup)
-    return app.exec()
+    return run_gui()
 
 # --------------------------------------------------------------------------------------------------
 # Entrypoint

@@ -3,7 +3,7 @@
 import json
 from typing import NotRequired, TypedDict
 
-from src.utils.paths import ABOUT_FILE_PATH
+from src.gui.utils.resources import ABOUT_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Data structures

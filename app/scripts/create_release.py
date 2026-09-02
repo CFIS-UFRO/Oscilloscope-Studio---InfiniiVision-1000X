@@ -5,15 +5,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from src.config import APP_NAME, RELEASE_REPOSITORY_NAME
-from src.utils.logging import init_logging, logger
-from src.utils.paths import (
+from src.core.config import APP_NAME, RELEASE_REPOSITORY_NAME
+from src.core.logging import init_logging, logger
+from src.core.paths import (
     PROJECT_DIR,
     PYPROJECT_FILE_PATH,
     RELEASES_FILE_PATH,
     UV_LOCK_FILE_PATH,
 )
-from src.utils.releases import (
+from src.core.releases import (
     append_release_entry,
     calculate_file_sha256,
     compress_paths,
@@ -24,7 +24,7 @@ from src.utils.releases import (
     update_pyproject_version,
     write_release_metadata,
 )
-from src.utils.tmp import get_tmp_file_path
+from src.core.tmp import get_tmp_file_path
 
 # --------------------------------------------------------------------------------------------------
 # Constants

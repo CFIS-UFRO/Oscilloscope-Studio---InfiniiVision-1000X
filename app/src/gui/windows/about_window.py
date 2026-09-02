@@ -16,12 +16,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.config import APP_NAME
-from src.utils.about import InstitutionInfo, get_about_info
-from src.utils.colors import is_dark_mode
-from src.utils.logging import logger
-from src.utils.paths import get_external_link_icon_file_path, get_logo_file_path
-from src.widgets.close_button_widget import CloseButtonWidget
+from src.core.config import APP_NAME
+from src.gui.utils.about import InstitutionInfo, get_about_info
+from src.gui.utils.colors import is_dark_mode
+from src.core.logging import logger
+from src.gui.utils.resources import get_external_link_icon_file_path, get_logo_file_path
+from src.gui.widgets.close_button_widget import CloseButtonWidget
 
 # --------------------------------------------------------------------------------------------------
 # Dialog

@@ -4,9 +4,9 @@ import sys
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QWidget
 
-from src.utils.logging import logger
-from src.widgets.close_button_widget import CloseButtonWidget
-from src.widgets.help_manuals import HelpManuals
+from src.core.logging import logger
+from src.gui.widgets.close_button_widget import CloseButtonWidget
+from src.gui.widgets.help_manuals import HelpManuals
 
 # --------------------------------------------------------------------------------------------------
 # Dialog
