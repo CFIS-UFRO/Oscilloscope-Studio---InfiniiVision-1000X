@@ -52,20 +52,20 @@ class AboutWindow(QDialog):
         information_layout.addRow(
             "Main developer",
             self._create_value_label(
-                f"{about_info['main_developer']['name']} "
-                f"({about_info['main_developer']['email']})",
+                f"{about_info.main_developer.name} "
+                f"({about_info.main_developer.email})",
                 word_wrap=False,
             ),
         )
         # Add the laboratory information
         information_layout.addRow(
             "Laboratory",
-            self._create_institution_widget(about_info["laboratory"]),
+            self._create_institution_widget(about_info.laboratory),
         )
         # Add the university information
         information_layout.addRow(
             "University",
-            self._create_institution_widget(about_info["university"]),
+            self._create_institution_widget(about_info.university),
         )
         # Attach the information grid
         layout.addLayout(information_layout)
@@ -74,8 +74,8 @@ class AboutWindow(QDialog):
         logos_layout.setSpacing(24)
         logos_layout.addStretch(1)
         # Add each available institution logo
-        for institution in (about_info["laboratory"], about_info["university"]):
-            logo_label = self._create_logo_label(institution["logo"])
+        for institution in (about_info.laboratory, about_info.university):
+            logo_label = self._create_logo_label(institution.logo)
             if logo_label is not None:
                 logos_layout.addWidget(logo_label)
         logos_layout.addStretch(1)
@@ -101,9 +101,9 @@ class AboutWindow(QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
         # Add the institution name
-        layout.addWidget(self._create_value_label(institution["name"], word_wrap=False))
+        layout.addWidget(self._create_value_label(institution.name, word_wrap=False))
         # Add the website action when a URL is configured
-        url = institution.get("url")
+        url = institution.url
         if url:
             link_button = QPushButton(widget)
             link_button.setFixedSize(20, 20)
@@ -118,7 +118,7 @@ class AboutWindow(QDialog):
             link_button.setCursor(Qt.CursorShape.PointingHandCursor)
             link_button.setIcon(QIcon(str(get_external_link_icon_file_path(is_dark_mode()))))
             link_button.setToolTip(url)
-            link_button.setAccessibleName(f"Open {institution['name']} website")
+            link_button.setAccessibleName(f"Open {institution.name} website")
             link_button.clicked.connect(
                 lambda _checked=False, target_url=url: QDesktopServices.openUrl(QUrl(target_url))
             )

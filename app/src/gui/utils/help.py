@@ -1,46 +1,32 @@
 """Help-manual index loading and validation."""
 
-import json
 from functools import lru_cache
-from typing import TypedDict
+
+from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
 from src.gui.utils.resources import HELP_INDEX_FILE_PATH
 
 # --------------------------------------------------------------------------------------------------
 # Data
 # --------------------------------------------------------------------------------------------------
-class HelpManual(TypedDict):
+class HelpManual(BaseModel):
     """Indexed help manual metadata."""
 
-    id: str
-    title: str
-    file: str
+    id: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    file: str = Field(min_length=1)
 
 # --------------------------------------------------------------------------------------------------
 # Manual index
 # --------------------------------------------------------------------------------------------------
+_HELP_MANUALS_ADAPTER = TypeAdapter(list[HelpManual])
+# --------------------------------------------------------------------------------------------------
 @lru_cache(maxsize=1)
 def get_help_manuals() -> list[HelpManual]:
     """Load and validate the configured help manuals."""
-    index_file_path = HELP_INDEX_FILE_PATH
-    data = json.loads(index_file_path.read_text(encoding="utf-8"))
-    if not isinstance(data, list):
-        raise ValueError(f"Help index must contain a list: {index_file_path}")
-    manuals = []
-    for entry in data:
-        if not isinstance(entry, dict):
-            raise ValueError(f"Help index entries must contain objects: {index_file_path}")
-        manual_id = entry.get("id")
-        title = entry.get("title")
-        file_path = entry.get("file")
-        if (
-            not isinstance(manual_id, str)
-            or not manual_id
-            or not isinstance(title, str)
-            or not title
-            or not isinstance(file_path, str)
-            or not file_path
-        ):
-            raise ValueError(f"Help index entries require id, title, and file strings: {index_file_path}")
-        manuals.append(HelpManual(id=manual_id, title=title, file=file_path))
-    return manuals
+    try:
+        return _HELP_MANUALS_ADAPTER.validate_json(
+            HELP_INDEX_FILE_PATH.read_text(encoding="utf-8")
+        )
+    except ValidationError as exc:
+        raise ValueError(f"Invalid help index: {HELP_INDEX_FILE_PATH}") from exc

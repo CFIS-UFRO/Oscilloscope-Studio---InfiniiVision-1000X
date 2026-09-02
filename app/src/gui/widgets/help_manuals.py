@@ -76,10 +76,10 @@ class HelpManuals(QGroupBox):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         for manual in self._manuals:
-            item = QListWidgetItem(manual["title"], self._manual_list)
-            item.setData(MANUAL_ID_ROLE, manual["id"])
-            item.setData(MANUAL_FILE_ROLE, manual["file"])
-            manual_file_path = help_dir_path / manual["file"]
+            item = QListWidgetItem(manual.title, self._manual_list)
+            item.setData(MANUAL_ID_ROLE, manual.id)
+            item.setData(MANUAL_FILE_ROLE, manual.file)
+            manual_file_path = help_dir_path / manual.file
             try:
                 raw_html = manual_file_path.read_text(encoding="utf-8")
             except OSError:

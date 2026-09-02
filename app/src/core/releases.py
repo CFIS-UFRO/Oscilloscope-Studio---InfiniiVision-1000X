@@ -1,16 +1,17 @@
 """Release creation helpers and GitHub-based application updates."""
 
 import hashlib
-import json
 import re
 import shutil
 import subprocess
 import zipfile
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+
+from pydantic import BaseModel, StringConstraints, ValidationError, field_serializer
 
 from src.core.config import (
     RELEASE_ARCHIVE_PREFIX,
@@ -28,7 +29,6 @@ GITHUB_LATEST_RELEASE_API_URL = (
     f"https://api.github.com/repos/{RELEASE_REPOSITORY_NAME}/releases/latest"
 )
 SEMANTIC_VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
-SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 PYPROJECT_VERSION_RE = re.compile(
     r'(?m)^(?P<prefix>version\s*=\s*")(?P<version>\d+\.\d+\.\d+)(?P<suffix>"\s*)$'
 )
@@ -41,23 +41,62 @@ UV_LOCK_PROJECT_VERSION_RE = re.compile(
 # --------------------------------------------------------------------------------------------------
 # Data models
 # --------------------------------------------------------------------------------------------------
-@dataclass(frozen=True)
-class ReleaseAsset:
+SemanticVersion = Annotated[str, StringConstraints(pattern=r"^\d+\.\d+\.\d+$")]
+Sha256Digest = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+# --------------------------------------------------------------------------------------------------
+class _InboundModel(BaseModel):
+    """Base model for payloads parsed from GitHub or on-disk JSON."""
+
+    @field_serializer("created_at_utc", check_fields=False)
+    def _serialize_created_at_utc(self, value: datetime) -> str:
+        return value.isoformat()
+# --------------------------------------------------------------------------------------------------
+class ReleaseEntry(_InboundModel):
+    """A single published release and its human-readable changes."""
+
+    version: SemanticVersion
+    created_at_utc: datetime
+    changes: list[str] = []
+# --------------------------------------------------------------------------------------------------
+class ReleasesFile(_InboundModel):
+    """Contents of the project release-history file."""
+
+    releases: list[ReleaseEntry] = []
+# --------------------------------------------------------------------------------------------------
+class ReleaseMetadata(_InboundModel):
+    """Updater metadata published alongside a release archive."""
+
+    version: SemanticVersion
+    archive_sha256: Sha256Digest
+    created_at_utc: datetime
+    releases: list[ReleaseEntry] = []
+# --------------------------------------------------------------------------------------------------
+class GitHubAsset(_InboundModel):
+    """One downloadable asset attached to a GitHub release."""
+
+    name: str
+    browser_download_url: str
+# --------------------------------------------------------------------------------------------------
+class GitHubRelease(_InboundModel):
+    """Subset of the GitHub latest-release API response."""
+
+    assets: list[GitHubAsset] = []
+# --------------------------------------------------------------------------------------------------
+class ReleaseAsset(BaseModel):
     """GitHub release asset download information."""
 
     name: str
     download_url: str
 # --------------------------------------------------------------------------------------------------
-@dataclass(frozen=True)
-class ReleaseUpdate:
+class ReleaseUpdate(BaseModel):
     """Resolved update metadata for the latest published release."""
 
-    current_version: str
-    latest_version: str
-    archive_sha256: str
+    current_version: SemanticVersion
+    latest_version: SemanticVersion
+    archive_sha256: Sha256Digest
     metadata_asset: ReleaseAsset
     archive_asset: ReleaseAsset
-    releases: list[dict[str, object]]
+    releases: list[ReleaseEntry] = []
 
     @property
     def is_update_available(self) -> bool:
@@ -174,36 +213,30 @@ def write_release_metadata(
     output_relative_path: str,
     version: str,
     archive_sha256: str,
-    releases: list[dict[str, object]],
+    releases: list[ReleaseEntry],
 ) -> Path:
     """Write updater metadata as JSON under the project temporary directory."""
-    parse_semantic_version(version)
-    if SHA256_RE.fullmatch(archive_sha256) is None:
-        raise ValueError("Release archive SHA-256 is invalid.")
-    metadata = {
-        "version": version,
-        "archive_sha256": archive_sha256,
-        "created_at_utc": datetime.now(UTC).isoformat(),
-        "releases": releases,
-    }
-    return create_file(output_relative_path, json.dumps(metadata, indent=2) + "\n")
+    metadata = ReleaseMetadata(
+        version=version,
+        archive_sha256=archive_sha256,
+        created_at_utc=datetime.now(UTC),
+        releases=releases,
+    )
+    return create_file(output_relative_path, metadata.model_dump_json(indent=2) + "\n")
 # --------------------------------------------------------------------------------------------------
-def get_release_entries(releases_file_path: Path) -> list[dict[str, object]]:
+def get_release_entries(releases_file_path: Path) -> list[ReleaseEntry]:
     """Return release entries from the project release-history file."""
-    return _read_releases_data(releases_file_path)["releases"]
+    return _read_releases_file(releases_file_path).releases
 # --------------------------------------------------------------------------------------------------
 def append_release_entry(releases_file_path: Path, version: str, changes: list[str]) -> Path:
     """Append a release entry to the project release-history file."""
-    parse_semantic_version(version)
-    releases_data = _read_releases_data(releases_file_path)
-    releases_data["releases"].append(
-        {
-            "version": version,
-            "created_at_utc": datetime.now(UTC).isoformat(),
-            "changes": changes,
-        }
+    releases_file = _read_releases_file(releases_file_path)
+    releases_file.releases.append(
+        ReleaseEntry(version=version, created_at_utc=datetime.now(UTC), changes=changes)
     )
-    releases_file_path.write_text(json.dumps(releases_data, indent=2) + "\n", encoding="utf-8")
+    releases_file_path.write_text(
+        releases_file.model_dump_json(indent=2) + "\n", encoding="utf-8"
+    )
     return releases_file_path
 
 # --------------------------------------------------------------------------------------------------
@@ -213,22 +246,19 @@ def get_latest_release_update() -> ReleaseUpdate:
     """Download the latest metadata asset and resolve available update information."""
     current_version = get_pyproject_version(PYPROJECT_FILE_PATH)
     logger.info(f"Checking for updates. Current version: {current_version}")
-    release_data = _read_json_url(GITHUB_LATEST_RELEASE_API_URL)
-    metadata_asset = _get_release_asset(release_data, ".json")
-    archive_asset = _get_release_asset(release_data, ".zip")
+    release = _fetch_latest_github_release()
+    metadata_asset = _select_release_asset(release, ".json")
+    archive_asset = _select_release_asset(release, ".zip")
     metadata_file_path = download_release_asset(metadata_asset)
     metadata = _read_release_metadata(metadata_file_path)
-    latest_version = _get_release_metadata_version(metadata)
-    archive_sha256 = _get_release_metadata_archive_sha256(metadata)
-    releases = _get_release_metadata_entries(metadata)
-    logger.info(f"Latest published version: {latest_version}")
+    logger.info(f"Latest published version: {metadata.version}")
     return ReleaseUpdate(
         current_version=current_version,
-        latest_version=latest_version,
-        archive_sha256=archive_sha256,
+        latest_version=metadata.version,
+        archive_sha256=metadata.archive_sha256,
         metadata_asset=metadata_asset,
         archive_asset=archive_asset,
-        releases=releases,
+        releases=metadata.releases,
     )
 # --------------------------------------------------------------------------------------------------
 def download_release_asset(asset: ReleaseAsset) -> Path:
@@ -289,9 +319,9 @@ def extract_release_archive(archive_file_path: Path, destination_dir_path: Path)
 # --------------------------------------------------------------------------------------------------
 # Internal parsing
 # --------------------------------------------------------------------------------------------------
-def _read_json_url(url: str) -> dict[str, object]:
+def _fetch_latest_github_release() -> GitHubRelease:
     request = Request(
-        url,
+        GITHUB_LATEST_RELEASE_API_URL,
         headers={
             "Accept": "application/vnd.github+json",
             "User-Agent": RELEASE_HTTP_USER_AGENT,
@@ -299,66 +329,37 @@ def _read_json_url(url: str) -> dict[str, object]:
     )
     try:
         with urlopen(request, timeout=60) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            payload = response.read().decode("utf-8")
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
         raise RuntimeError(
             f"Could not fetch the latest release from {RELEASE_REPOSITORY_NAME}."
         ) from exc
-    if not isinstance(data, dict):
-        raise ValueError("Latest release metadata must contain an object.")
-    return data
+    try:
+        return GitHubRelease.model_validate_json(payload)
+    except ValidationError as exc:
+        raise ValueError("Latest GitHub release response is not in the expected format.") from exc
 # --------------------------------------------------------------------------------------------------
-def _get_release_asset(release_data: dict[str, object], file_suffix: str) -> ReleaseAsset:
-    assets = release_data.get("assets")
-    if not isinstance(assets, list):
-        raise ValueError("Latest GitHub release does not contain an assets list.")
-    for asset in assets:
-        if not isinstance(asset, dict):
-            continue
-        name = asset.get("name")
-        download_url = asset.get("browser_download_url")
-        if isinstance(name, str) and isinstance(download_url, str) and name.endswith(file_suffix):
-            return ReleaseAsset(name=name, download_url=download_url)
+def _select_release_asset(release: GitHubRelease, file_suffix: str) -> ReleaseAsset:
+    for asset in release.assets:
+        if asset.name.endswith(file_suffix):
+            return ReleaseAsset(name=asset.name, download_url=asset.browser_download_url)
     raise ValueError(f"Latest GitHub release does not contain a {file_suffix} asset.")
 # --------------------------------------------------------------------------------------------------
-def _read_release_metadata(metadata_file_path: Path) -> dict[str, object]:
+def _read_release_metadata(metadata_file_path: Path) -> ReleaseMetadata:
     try:
-        metadata = json.loads(metadata_file_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid release metadata JSON: {metadata_file_path}") from exc
-    if not isinstance(metadata, dict):
-        raise ValueError(f"Release metadata must contain an object: {metadata_file_path}")
-    return metadata
+        return ReleaseMetadata.model_validate_json(
+            metadata_file_path.read_text(encoding="utf-8")
+        )
+    except ValidationError as exc:
+        raise ValueError(f"Invalid release metadata: {metadata_file_path}") from exc
 # --------------------------------------------------------------------------------------------------
-def _get_release_metadata_version(metadata: dict[str, object]) -> str:
-    version = metadata.get("version")
-    if not isinstance(version, str):
-        raise ValueError("Release metadata does not contain a version string.")
-    parse_semantic_version(version)
-    return version
-# --------------------------------------------------------------------------------------------------
-def _get_release_metadata_archive_sha256(metadata: dict[str, object]) -> str:
-    archive_sha256 = metadata.get("archive_sha256")
-    if not isinstance(archive_sha256, str) or SHA256_RE.fullmatch(archive_sha256) is None:
-        raise ValueError("Release metadata does not contain a valid archive SHA-256.")
-    return archive_sha256
-# --------------------------------------------------------------------------------------------------
-def _get_release_metadata_entries(metadata: dict[str, object]) -> list[dict[str, object]]:
-    releases = metadata.get("releases")
-    if not isinstance(releases, list) or not all(isinstance(release, dict) for release in releases):
-        raise ValueError("Release metadata releases must be a list of objects.")
-    return releases
-# --------------------------------------------------------------------------------------------------
-def _read_releases_data(releases_file_path: Path) -> dict[str, list[dict[str, object]]]:
+def _read_releases_file(releases_file_path: Path) -> ReleasesFile:
     if not releases_file_path.exists():
-        return {"releases": []}
+        return ReleasesFile()
     try:
-        releases_data = json.loads(releases_file_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid releases JSON: {releases_file_path}") from exc
-    if not isinstance(releases_data, dict) or not isinstance(releases_data.get("releases"), list):
-        raise ValueError(f"Releases JSON must contain a releases list: {releases_file_path}")
-    return releases_data
+        return ReleasesFile.model_validate_json(releases_file_path.read_text(encoding="utf-8"))
+    except ValidationError as exc:
+        raise ValueError(f"Invalid releases file: {releases_file_path}") from exc
 # --------------------------------------------------------------------------------------------------
 def _is_hidden_path(file_path: Path) -> bool:
     return any(part.startswith(".") for part in file_path.parts)
