@@ -31,19 +31,18 @@ class MainWindow(QMainWindow):
     def __init__(
         self,
         version: str,
+        quit_callback: Callable[[], None],
         restart_callback: Callable[[], None] | None = None,
-        quit_callback: Callable[[], None] | None = None,
     ) -> None:
         super().__init__()
         # Application callbacks
-        self._restart_callback = restart_callback
         self._quit_callback = quit_callback
+        self._restart_callback = restart_callback
         # Auxiliary windows
         self._about_window: AboutWindow | None = None
         self._help_window: HelpWindow | None = None
         self._release_update_window: ReleaseUpdateWindow | None = None
         # Runtime state
-        self._closing_from_action = False
         self._version = version
         # Window configuration
         self.setWindowTitle(APP_NAME)
@@ -117,14 +116,8 @@ class MainWindow(QMainWindow):
         self._get_release_update_window().check_for_updates_on_startup()
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        """Route window-manager closes through the configured quit callback."""
-        # Direct close
-        if self._quit_callback is None or self._closing_from_action:
-            event.accept()
-            return
-        # Delegated close
+        """Route window-manager closes through the application quit path."""
         event.ignore()
-        self._closing_from_action = True
         self._quit_callback()
 
     def _open_help_window(self) -> None:
