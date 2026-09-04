@@ -22,6 +22,10 @@ HELP_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "help_black.svg"
 HELP_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "help_white.svg"
 EXTERNAL_LINK_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_black.svg"
 EXTERNAL_LINK_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "external_link_white.svg"
+COPY_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "copy_black.svg"
+COPY_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "copy_white.svg"
+CHECK_BLACK_ICON_FILE_PATH: Path = ICONS_DIR / "check_black.svg"
+CHECK_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "check_white.svg"
 
 # --------------------------------------------------------------------------------------------------
 # Theme-aware getters
@@ -33,6 +37,14 @@ def get_help_icon_file_path(is_dark_mode: bool = False) -> Path:
 def get_external_link_icon_file_path(is_dark_mode: bool = False) -> Path:
     """Return the external-link icon path for the current color theme."""
     return EXTERNAL_LINK_WHITE_ICON_FILE_PATH if is_dark_mode else EXTERNAL_LINK_BLACK_ICON_FILE_PATH
+# --------------------------------------------------------------------------------------------------
+def get_copy_icon_file_path(is_dark_mode: bool = False) -> Path:
+    """Return the copy icon path for the current color theme."""
+    return COPY_WHITE_ICON_FILE_PATH if is_dark_mode else COPY_BLACK_ICON_FILE_PATH
+# --------------------------------------------------------------------------------------------------
+def get_check_icon_file_path(is_dark_mode: bool = False) -> Path:
+    """Return the check icon path for the current color theme."""
+    return CHECK_WHITE_ICON_FILE_PATH if is_dark_mode else CHECK_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
 def get_logo_file_path(file_name: str, is_dark_mode: bool = False) -> Path:
     """Return the theme-specific logo path for a base file name."""
