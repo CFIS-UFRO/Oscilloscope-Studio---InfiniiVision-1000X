@@ -51,6 +51,10 @@ The application is intended to support the entire InfiniiVision 1000 X-Series. A
   <sub>Image source: <a href="https://www.keysight.com/us/en/support/EDUX1002A/oscilloscope-50-mhz-2-analog-channels.html#drivers">official Keysight EDUX1002A product page</a>.</sub>
 </p>
 
+## USB setup
+
+The oscilloscope connects over USB and communicates through `libusb`, which the application bundles automatically. Depending on your operating system, an extra one-time step may be required (a Zadig driver swap on Windows, a udev rule on Linux). Open **USB Configuration** in the app for the full, OS-specific walkthrough.
+
 ## Communication protocol
 
 All instrument communication implemented in this project is based on the command set documented in the official [Keysight InfiniiVision 1000 X-Series Programmer's Guide](https://www.keysight.com/us/en/assets/9018-07554/programming-guides/9018-07554.pdf).
