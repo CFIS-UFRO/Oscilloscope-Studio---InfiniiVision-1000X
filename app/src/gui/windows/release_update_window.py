@@ -108,6 +108,7 @@ class ReleaseUpdateWindow(QDialog):
 
     def show_window(self) -> None:
         """Show, raise, and activate the update dialog."""
+        logger.info("Opening release update window")
         if self.isMinimized():
             self.showNormal()
         else:
