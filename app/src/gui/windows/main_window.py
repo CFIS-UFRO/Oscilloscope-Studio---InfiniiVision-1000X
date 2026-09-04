@@ -7,7 +7,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent, QCursor
 from PySide6.QtWidgets import (
     QApplication,
-    QLabel,
     QMainWindow,
     QSplitter,
     QVBoxLayout,
@@ -21,6 +20,7 @@ from src.gui.widgets.terminal_widget import TerminalWidget
 from src.gui.windows.about_window import AboutWindow
 from src.gui.windows.help_window import HelpWindow
 from src.gui.windows.release_update_window import ReleaseUpdateWindow
+from src.gui.windows.usb_configuration_window import UsbConfigurationWindow
 
 # --------------------------------------------------------------------------------------------------
 # Main window
@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         self._about_window: AboutWindow | None = None
         self._help_window: HelpWindow | None = None
         self._release_update_window: ReleaseUpdateWindow | None = None
+        self._usb_configuration_window: UsbConfigurationWindow | None = None
         # Runtime state
         self._version = version
         # Window configuration
@@ -65,17 +66,8 @@ class MainWindow(QMainWindow):
         content_splitter = QSplitter(Qt.Orientation.Vertical, central_widget)
         content_splitter.setChildrenCollapsible(False)
         content_splitter.setHandleWidth(8)
-        # Workspace placeholder
+        # Workspace
         workspace = QWidget(content_splitter)
-        workspace_layout = QVBoxLayout(workspace)
-        workspace_layout.setContentsMargins(0, 0, 0, 0)
-        placeholder = QLabel(
-            "Oscilloscope controls and acquisition tools will be added here.",
-            workspace,
-        )
-        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        placeholder.setStyleSheet("font-size: 16px; color: palette(mid);")
-        workspace_layout.addWidget(placeholder, 1)
         content_splitter.addWidget(workspace)
         # Terminal panel
         self._terminal_widget = TerminalWidget(content_splitter)
@@ -90,6 +82,9 @@ class MainWindow(QMainWindow):
 
     def _connect_signals(self) -> None:
         # Header actions
+        self._header_widget.usb_configuration_requested.connect(
+            self._open_usb_configuration_window
+        )
         self._header_widget.check_for_updates_requested.connect(
             self._open_release_update_window
         )
@@ -131,6 +126,12 @@ class MainWindow(QMainWindow):
         if self._about_window is None:
             self._about_window = AboutWindow(parent=self)
         self._about_window.show_window()
+
+    def _open_usb_configuration_window(self) -> None:
+        # Lazy initialization
+        if self._usb_configuration_window is None:
+            self._usb_configuration_window = UsbConfigurationWindow(parent=self)
+        self._usb_configuration_window.show_window()
 
     def _open_release_update_window(self) -> None:
         self._get_release_update_window().check_for_updates()

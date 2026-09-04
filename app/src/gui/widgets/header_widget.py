@@ -17,6 +17,7 @@ class HeaderWidget(QWidget):
     """Display the application title, separator, and top-level actions."""
 
     # Action signals
+    usb_configuration_requested = Signal()
     check_for_updates_requested = Signal()
     help_requested = Signal()
     about_requested = Signal()
@@ -40,6 +41,12 @@ class HeaderWidget(QWidget):
         # Actions row
         actions_layout = QHBoxLayout()
         actions_layout.addStretch(1)
+        # USB configuration action
+        usb_configuration_button = QPushButton("USB Configuration", self)
+        usb_configuration_button.clicked.connect(self.usb_configuration_requested.emit)
+        actions_layout.addWidget(usb_configuration_button)
+        # Vertical separator
+        actions_layout.addWidget(QLabel("|", self))
         # Update action
         updates_button = QPushButton("Check for updates", self)
         updates_button.clicked.connect(self.check_for_updates_requested.emit)
