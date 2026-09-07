@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.core.config import APP_NAME
+from src.gui.widgets.device_connection_widget import DeviceConnectionWidget
 from src.gui.widgets.footer_widget import FooterWidget
 from src.gui.widgets.header_widget import HeaderWidget
 from src.gui.widgets.terminal_widget import TerminalWidget
@@ -21,6 +22,11 @@ from src.gui.windows.about_window import AboutWindow
 from src.gui.windows.help_window import HelpWindow
 from src.gui.windows.release_update_window import ReleaseUpdateWindow
 from src.gui.windows.usb_configuration_window import UsbConfigurationWindow
+
+# --------------------------------------------------------------------------------------------------
+# Workspace layout constants
+# --------------------------------------------------------------------------------------------------
+WORKSPACE_PANEL_SIZES = [700, 300]
 
 # --------------------------------------------------------------------------------------------------
 # Main window
@@ -66,9 +72,23 @@ class MainWindow(QMainWindow):
         content_splitter = QSplitter(Qt.Orientation.Vertical, central_widget)
         content_splitter.setChildrenCollapsible(False)
         content_splitter.setHandleWidth(8)
-        # Workspace
-        workspace = QWidget(content_splitter)
-        content_splitter.addWidget(workspace)
+        # Workspace: oscilloscope screen (left) and configuration panels (right)
+        workspace_splitter = QSplitter(Qt.Orientation.Horizontal, content_splitter)
+        workspace_splitter.setChildrenCollapsible(False)
+        workspace_splitter.setHandleWidth(8)
+        screen_widget = QWidget(workspace_splitter)
+        workspace_splitter.addWidget(screen_widget)
+        config_widget = QWidget(workspace_splitter)
+        config_layout = QVBoxLayout(config_widget)
+        config_layout.setContentsMargins(0, 0, 0, 0)
+        self._device_connection_widget = DeviceConnectionWidget(config_widget)
+        config_layout.addWidget(self._device_connection_widget)
+        config_layout.addStretch(1)
+        workspace_splitter.addWidget(config_widget)
+        workspace_splitter.setStretchFactor(0, 1)
+        workspace_splitter.setStretchFactor(1, 0)
+        workspace_splitter.setSizes(WORKSPACE_PANEL_SIZES)
+        content_splitter.addWidget(workspace_splitter)
         # Terminal panel
         self._terminal_widget = TerminalWidget(content_splitter)
         content_splitter.addWidget(self._terminal_widget)
@@ -90,6 +110,8 @@ class MainWindow(QMainWindow):
         )
         self._header_widget.help_requested.connect(self._open_help_window)
         self._header_widget.about_requested.connect(self._open_about_window)
+        # Device connection status
+        self._device_connection_widget.status_message.connect(self.append_terminal_message)
 
     def append_terminal_message(self, level: str, text: str) -> None:
         """Append a line to the in-app terminal panel."""
