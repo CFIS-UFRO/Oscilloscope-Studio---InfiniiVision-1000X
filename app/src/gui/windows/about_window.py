@@ -2,16 +2,13 @@
 
 import sys
 
-from PySide6.QtCore import QSize, Qt, QUrl
-from PySide6.QtGui import QAction, QDesktopServices, QIcon, QPixmap
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QFormLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -19,8 +16,9 @@ from PySide6.QtWidgets import (
 from src.core.config import APP_NAME
 from src.gui.utils.about import InstitutionInfo, get_about_info
 from src.core.logging import logger
-from src.gui.utils.resources import get_external_link_icon_file_path, get_logo_file_path
+from src.gui.utils.resources import get_logo_file_path
 from src.gui.widgets.close_button_widget import CloseButtonWidget
+from src.gui.widgets.url_widget import UrlWidget
 
 # --------------------------------------------------------------------------------------------------
 # Dialog
@@ -94,43 +92,11 @@ class AboutWindow(QDialog):
         return label
 
     def _create_institution_widget(self, institution: InstitutionInfo) -> QWidget:
-        # Create a compact row for the institution name and optional link
-        widget = QWidget(self)
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-        # Add the institution name
-        layout.addWidget(self._create_value_label(institution.name, word_wrap=False))
-        # Add the website action when a URL is configured
-        url = institution.url
-        if url:
-            link_button = QPushButton(widget)
-            link_button.setFixedSize(20, 20)
-            link_button.setIconSize(QSize(14, 14))
-            link_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            link_button.setStyleSheet(
-                "QPushButton {"
-                " background: transparent;"
-                " border: none;"
-                "}"
-            )
-            link_button.setCursor(Qt.CursorShape.PointingHandCursor)
-            link_button.setIcon(QIcon(str(get_external_link_icon_file_path())))
-            link_button.setToolTip(url)
-            link_button.setAccessibleName(f"Open {institution.name} website")
-            link_button.clicked.connect(
-                lambda _checked=False, target_url=url: QDesktopServices.openUrl(QUrl(target_url))
-            )
-            # Add a native right-click action for copying the URL
-            copy_link_action = QAction("Copy link", link_button)
-            copy_link_action.triggered.connect(
-                lambda _checked=False, target_url=url: QApplication.clipboard().setText(target_url)
-            )
-            link_button.addAction(copy_link_action)
-            link_button.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-            layout.addWidget(link_button)
-        layout.addStretch(1)
-        return widget
+        # Show the name alongside icon-based open and copy actions when a URL is configured
+        if institution.url:
+            return UrlWidget(f"{institution.name}:", institution.url, self)
+        # Fall back to a plain selectable name label
+        return self._create_value_label(institution.name, word_wrap=False)
 
     def _create_logo_label(self, logo_file_name: str) -> QLabel | None:
         # Resolve the logo variant for the active color theme
