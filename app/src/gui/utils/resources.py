@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from src.core.paths import SRC_DIR
+from src.gui.utils.colors import is_dark_mode
 
 # --------------------------------------------------------------------------------------------------
 # Directories
@@ -30,26 +31,26 @@ CHECK_WHITE_ICON_FILE_PATH: Path = ICONS_DIR / "check_white.svg"
 # --------------------------------------------------------------------------------------------------
 # Theme-aware getters
 # --------------------------------------------------------------------------------------------------
-def get_help_icon_file_path(is_dark_mode: bool = False) -> Path:
+def get_help_icon_file_path() -> Path:
     """Return the help icon path for the current color theme."""
-    return HELP_WHITE_ICON_FILE_PATH if is_dark_mode else HELP_BLACK_ICON_FILE_PATH
+    return HELP_WHITE_ICON_FILE_PATH if is_dark_mode() else HELP_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
-def get_external_link_icon_file_path(is_dark_mode: bool = False) -> Path:
+def get_external_link_icon_file_path() -> Path:
     """Return the external-link icon path for the current color theme."""
-    return EXTERNAL_LINK_WHITE_ICON_FILE_PATH if is_dark_mode else EXTERNAL_LINK_BLACK_ICON_FILE_PATH
+    return EXTERNAL_LINK_WHITE_ICON_FILE_PATH if is_dark_mode() else EXTERNAL_LINK_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
-def get_copy_icon_file_path(is_dark_mode: bool = False) -> Path:
+def get_copy_icon_file_path() -> Path:
     """Return the copy icon path for the current color theme."""
-    return COPY_WHITE_ICON_FILE_PATH if is_dark_mode else COPY_BLACK_ICON_FILE_PATH
+    return COPY_WHITE_ICON_FILE_PATH if is_dark_mode() else COPY_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
-def get_check_icon_file_path(is_dark_mode: bool = False) -> Path:
+def get_check_icon_file_path() -> Path:
     """Return the check icon path for the current color theme."""
-    return CHECK_WHITE_ICON_FILE_PATH if is_dark_mode else CHECK_BLACK_ICON_FILE_PATH
+    return CHECK_WHITE_ICON_FILE_PATH if is_dark_mode() else CHECK_BLACK_ICON_FILE_PATH
 # --------------------------------------------------------------------------------------------------
-def get_logo_file_path(file_name: str, is_dark_mode: bool = False) -> Path:
+def get_logo_file_path(file_name: str) -> Path:
     """Return the theme-specific logo path for a base file name."""
     base_file_path = Path(file_name)
     if not file_name or base_file_path.name != file_name:
         raise ValueError(f"Logo path must contain only a file name: {file_name}")
-    theme_suffix = "dark" if is_dark_mode else "light"
+    theme_suffix = "dark" if is_dark_mode() else "light"
     return LOGOS_DIR / f"{base_file_path.stem}_{theme_suffix}{base_file_path.suffix}"

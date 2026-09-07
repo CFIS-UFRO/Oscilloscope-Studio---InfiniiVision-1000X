@@ -4,7 +4,6 @@ from PySide6.QtCore import QEvent, QSize, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QPushButton, QSizePolicy, QWidget
 
-from src.gui.utils.colors import is_dark_mode
 from src.gui.utils.resources import get_help_icon_file_path
 from src.gui.windows.help_window import HelpWindow
 
@@ -46,7 +45,7 @@ class HelpButton(QPushButton):
         super().changeEvent(event)
 
     def _configure_icon(self) -> None:
-        icon_file_path = get_help_icon_file_path(is_dark_mode())
+        icon_file_path = get_help_icon_file_path()
         if icon_file_path.exists():
             self.setIcon(QIcon(str(icon_file_path)))
 

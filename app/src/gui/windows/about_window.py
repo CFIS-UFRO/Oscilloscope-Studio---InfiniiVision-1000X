@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
 
 from src.core.config import APP_NAME
 from src.gui.utils.about import InstitutionInfo, get_about_info
-from src.gui.utils.colors import is_dark_mode
 from src.core.logging import logger
 from src.gui.utils.resources import get_external_link_icon_file_path, get_logo_file_path
 from src.gui.widgets.close_button_widget import CloseButtonWidget
@@ -116,7 +115,7 @@ class AboutWindow(QDialog):
                 "}"
             )
             link_button.setCursor(Qt.CursorShape.PointingHandCursor)
-            link_button.setIcon(QIcon(str(get_external_link_icon_file_path(is_dark_mode()))))
+            link_button.setIcon(QIcon(str(get_external_link_icon_file_path())))
             link_button.setToolTip(url)
             link_button.setAccessibleName(f"Open {institution.name} website")
             link_button.clicked.connect(
@@ -135,7 +134,7 @@ class AboutWindow(QDialog):
 
     def _create_logo_label(self, logo_file_name: str) -> QLabel | None:
         # Resolve the logo variant for the active color theme
-        logo_file_path = get_logo_file_path(logo_file_name, is_dark_mode())
+        logo_file_path = get_logo_file_path(logo_file_name)
         # Load the logo image
         pixmap = QPixmap(str(logo_file_path))
         # Skip an unavailable or invalid image

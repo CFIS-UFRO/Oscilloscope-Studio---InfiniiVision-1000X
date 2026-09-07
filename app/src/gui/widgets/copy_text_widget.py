@@ -4,7 +4,6 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
-from src.gui.utils.colors import is_dark_mode
 from src.gui.utils.icon_button import create_icon_button
 from src.gui.utils.resources import get_check_icon_file_path, get_copy_icon_file_path
 
@@ -24,15 +23,15 @@ class CopyTextWidget(QWidget):
     ) -> None:
         super().__init__(parent)
         self._value = value
-        self._copy_icon = QIcon(str(get_copy_icon_file_path(is_dark_mode())))
-        self._check_icon = QIcon(str(get_check_icon_file_path(is_dark_mode())))
+        self._copy_icon = QIcon(str(get_copy_icon_file_path()))
+        self._check_icon = QIcon(str(get_check_icon_file_path()))
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
         text_label = QLabel(f"{text} {value}", self)
         text_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         layout.addWidget(text_label)
-        self._copy_button = create_icon_button(get_copy_icon_file_path(is_dark_mode()), tooltip, self)
+        self._copy_button = create_icon_button(get_copy_icon_file_path(), tooltip, self)
         self._copy_button.clicked.connect(self._copy_value)
         layout.addWidget(self._copy_button)
         layout.addStretch(1)
