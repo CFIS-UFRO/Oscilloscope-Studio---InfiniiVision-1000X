@@ -3,10 +3,9 @@
 import warnings
 
 import pyvisa
-from pydantic import BaseModel
 
+from src.core.keysight import KEYSIGHT_VENDOR_ID, KeysightDeviceInfo
 from src.core.logging import logger
-from src.core.usb import KEYSIGHT_VENDOR_ID
 
 # --------------------------------------------------------------------------------------------------
 # Constants
@@ -24,28 +23,15 @@ warnings.filterwarnings("ignore", message=r"TCPIP:instr resource discovery.*", c
 # --------------------------------------------------------------------------------------------------
 # Data models
 # --------------------------------------------------------------------------------------------------
-class VisaDeviceInfo(BaseModel):
+class KeysightVisaDeviceInfo(KeysightDeviceInfo):
     """A single VISA-addressable device identified by vendor and product IDs."""
 
     resource_string: str
-    vendor_id: int
-    product_id: int
-    serial_number: str | None = None
-
-    @property
-    def vendor_id_hex(self) -> str:
-        """Return the vendor ID as a lowercase four-digit hex string."""
-        return f"{self.vendor_id:04x}"
-
-    @property
-    def product_id_hex(self) -> str:
-        """Return the product ID as a lowercase four-digit hex string."""
-        return f"{self.product_id:04x}"
 
 # --------------------------------------------------------------------------------------------------
 # Device discovery
 # --------------------------------------------------------------------------------------------------
-def list_keysight_visa_resources() -> list[VisaDeviceInfo]:
+def list_keysight_visa_resources() -> list[KeysightVisaDeviceInfo]:
     """Return the Keysight VISA resources currently connected to the computer."""
     resource_manager = pyvisa.ResourceManager("@py")
     try:
@@ -55,7 +41,7 @@ def list_keysight_visa_resources() -> list[VisaDeviceInfo]:
     device_infos = (_to_device_info(resource_string) for resource_string in resource_strings)
     return [device_info for device_info in device_infos if device_info is not None]
 # --------------------------------------------------------------------------------------------------
-def _to_device_info(resource_string: str) -> VisaDeviceInfo | None:
+def _to_device_info(resource_string: str) -> KeysightVisaDeviceInfo | None:
     # USB INSTR resource strings look like "USB0::10893::6027::CN60100132::0::INSTR":
     #   [0] interface type + board number (e.g. "USB0")
     #   [1] vendor ID (decimal)
@@ -78,7 +64,7 @@ def _to_device_info(resource_string: str) -> VisaDeviceInfo | None:
         return None
     if vendor_id != KEYSIGHT_VENDOR_ID:
         return None
-    return VisaDeviceInfo(
+    return KeysightVisaDeviceInfo(
         resource_string=resource_string,
         vendor_id=vendor_id,
         product_id=product_id,

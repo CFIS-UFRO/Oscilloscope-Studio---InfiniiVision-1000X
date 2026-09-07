@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.core.visa import VisaDeviceInfo, VisaSession
+from src.core.visa import KeysightVisaDeviceInfo, VisaSession
 from src.gui.utils.visa_connection import VisaConnector, VisaDiscoveryChecker
 from src.gui.widgets.status_dot_widget import StatusDotWidget
 
@@ -127,7 +127,7 @@ class DeviceConnectionWidget(QGroupBox):
     # Connect / disconnect
     # ----------------------------------------------------------------------------------------------
     def _start_connect(self) -> None:
-        device: VisaDeviceInfo | None = self._device_combo.currentData()
+        device: KeysightVisaDeviceInfo | None = self._device_combo.currentData()
         if device is None or self._connector.is_running:
             return
         self._pending_resource_string = device.resource_string
@@ -174,7 +174,7 @@ class DeviceConnectionWidget(QGroupBox):
             return
         self._discovery_checker.start()
 
-    def _handle_discovery_succeeded(self, devices: list[VisaDeviceInfo]) -> None:
+    def _handle_discovery_succeeded(self, devices: list[KeysightVisaDeviceInfo]) -> None:
         if self._connected_resource is not None:
             still_present = any(device.resource_string == self._connected_resource for device in devices)
             if not still_present:
@@ -189,7 +189,7 @@ class DeviceConnectionWidget(QGroupBox):
         # connected device is gone; only a successful listing that omits it triggers disconnect.
         pass
 
-    def _populate_devices(self, devices: list[VisaDeviceInfo]) -> None:
+    def _populate_devices(self, devices: list[KeysightVisaDeviceInfo]) -> None:
         remembered_resource = self._remembered_resource
         self._device_combo.blockSignals(True)
         self._device_combo.clear()
@@ -210,7 +210,7 @@ class DeviceConnectionWidget(QGroupBox):
 
     def _find_index_by_resource(self, resource_string: str) -> int | None:
         for index in range(self._device_combo.count()):
-            device: VisaDeviceInfo | None = self._device_combo.itemData(index)
+            device: KeysightVisaDeviceInfo | None = self._device_combo.itemData(index)
             if device is not None and device.resource_string == resource_string:
                 return index
         return None

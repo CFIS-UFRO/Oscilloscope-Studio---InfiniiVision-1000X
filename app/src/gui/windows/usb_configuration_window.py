@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.core.logging import logger
-from src.core.usb import UsbDeviceInfo, build_udev_install_command, list_keysight_usb_devices
+from src.core.usb import KeysightUsbDeviceInfo, build_udev_install_command, list_keysight_usb_devices
 from src.gui.utils.libusb_checker import LibusbChecker
 from src.gui.widgets.badge_widget import BadgeWidget
 from src.gui.widgets.close_button_widget import CloseButtonWidget
@@ -216,7 +216,7 @@ class _LinuxSetupTab(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self._selected_device: UsbDeviceInfo | None = None
+        self._selected_device: KeysightUsbDeviceInfo | None = None
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
         libusb_block, self._badge, reload_button = _create_libusb_setup_block(self)

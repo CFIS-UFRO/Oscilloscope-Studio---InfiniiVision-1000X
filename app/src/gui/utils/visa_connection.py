@@ -3,7 +3,7 @@
 from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
 
 from src.core.logging import logger
-from src.core.visa import VisaDeviceInfo, VisaSession, list_keysight_visa_resources
+from src.core.visa import KeysightVisaDeviceInfo, VisaSession, list_keysight_visa_resources
 
 # --------------------------------------------------------------------------------------------------
 # Discovery worker
@@ -63,7 +63,7 @@ class VisaDiscoveryChecker(QObject):
         return True
 
     @Slot(list)
-    def _handle_success(self, devices: list[VisaDeviceInfo]) -> None:
+    def _handle_success(self, devices: list[KeysightVisaDeviceInfo]) -> None:
         self.succeeded.emit(devices)
 
     @Slot(str)

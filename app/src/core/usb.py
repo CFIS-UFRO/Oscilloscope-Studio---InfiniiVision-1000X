@@ -4,36 +4,23 @@ import usb.backend
 import usb.backend.libusb1
 import usb.core
 import usb.util
-from pydantic import BaseModel
 
 import libusb_package
+
+from src.core.keysight import KEYSIGHT_VENDOR_ID, KeysightDeviceInfo
 
 # --------------------------------------------------------------------------------------------------
 # Constants
 # --------------------------------------------------------------------------------------------------
-KEYSIGHT_VENDOR_ID = 0x2A8D
 UDEV_RULES_FILE_PATH = "/etc/udev/rules.d/99-keysight-oscilloscope.rules"
 
 # --------------------------------------------------------------------------------------------------
 # Data models
 # --------------------------------------------------------------------------------------------------
-class UsbDeviceInfo(BaseModel):
+class KeysightUsbDeviceInfo(KeysightDeviceInfo):
     """A single USB device identified by vendor and product IDs."""
 
-    vendor_id: int
-    product_id: int
     product_name: str | None = None
-    serial_number: str | None = None
-
-    @property
-    def vendor_id_hex(self) -> str:
-        """Return the vendor ID as a lowercase four-digit hex string."""
-        return f"{self.vendor_id:04x}"
-
-    @property
-    def product_id_hex(self) -> str:
-        """Return the product ID as a lowercase four-digit hex string."""
-        return f"{self.product_id:04x}"
 
 # --------------------------------------------------------------------------------------------------
 # libusb backend
@@ -48,7 +35,7 @@ def _get_libusb_backend() -> usb.backend.IBackend | None:
 # --------------------------------------------------------------------------------------------------
 # Device discovery
 # --------------------------------------------------------------------------------------------------
-def list_keysight_usb_devices() -> list[UsbDeviceInfo]:
+def list_keysight_usb_devices() -> list[KeysightUsbDeviceInfo]:
     """Return the Keysight USB devices currently connected to the computer."""
     backend = _get_libusb_backend()
     if backend is None:
@@ -59,12 +46,12 @@ def list_keysight_usb_devices() -> list[UsbDeviceInfo]:
     device_infos = (_to_device_info(device) for device in devices)
     return [device_info for device_info in device_infos if device_info is not None]
 # --------------------------------------------------------------------------------------------------
-def _to_device_info(device: object) -> UsbDeviceInfo | None:
+def _to_device_info(device: object) -> KeysightUsbDeviceInfo | None:
     vendor_id = getattr(device, "idVendor", None)
     product_id = getattr(device, "idProduct", None)
     if vendor_id is None or product_id is None:
         return None
-    return UsbDeviceInfo(
+    return KeysightUsbDeviceInfo(
         vendor_id=vendor_id,
         product_id=product_id,
         product_name=_read_string_descriptor(device, getattr(device, "iProduct", None)),
