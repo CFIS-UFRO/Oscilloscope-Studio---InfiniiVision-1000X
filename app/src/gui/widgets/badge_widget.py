@@ -3,19 +3,14 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QWidget
 
+from src.gui.utils.colors import BADGE_COLORS
+
 
 # --------------------------------------------------------------------------------------------------
 # Widget
 # --------------------------------------------------------------------------------------------------
 class BadgeWidget(QLabel):
     """Display centered text on a rounded, colored background."""
-
-    COLORS = {
-        "gray": "#6f7378",
-        "green": "#1f8f4d",
-        "orange": "#c46a1a",
-        "red": "#b43a35",
-    }
 
     def __init__(
         self,
@@ -30,14 +25,14 @@ class BadgeWidget(QLabel):
 
     def set_color(self, color: str) -> None:
         """Set the badge background to a supported named color."""
-        if color not in self.COLORS:
-            supported_colors = ", ".join(sorted(self.COLORS))
+        if color not in BADGE_COLORS:
+            supported_colors = ", ".join(sorted(BADGE_COLORS))
             raise ValueError(
                 f"Unsupported badge color '{color}'. Supported colors: {supported_colors}"
             )
         self.setStyleSheet(
             f"""
-            background-color: {self.COLORS[color]};
+            background-color: {BADGE_COLORS[color]};
             border-radius: 12px;
             color: white;
             font-size: 12px;

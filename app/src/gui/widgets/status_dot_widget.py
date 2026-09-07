@@ -2,7 +2,7 @@
 
 from PySide6.QtWidgets import QLabel, QWidget
 
-from src.gui.widgets.badge_widget import BadgeWidget
+from src.gui.utils.colors import BADGE_COLORS
 
 # --------------------------------------------------------------------------------------------------
 # Widget
@@ -34,6 +34,6 @@ class StatusDotWidget(QLabel):
         if status not in self.STATUS_COLORS:
             supported_statuses = ", ".join(sorted(self.STATUS_COLORS))
             raise ValueError(f"Unsupported status '{status}'. Supported statuses: {supported_statuses}")
-        color = BadgeWidget.COLORS[self.STATUS_COLORS[status]]
+        color = BADGE_COLORS[self.STATUS_COLORS[status]]
         radius = self._size // 2
         self.setStyleSheet(f"background-color: {color}; border-radius: {radius}px;")
