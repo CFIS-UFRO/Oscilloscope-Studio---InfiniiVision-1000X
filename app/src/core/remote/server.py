@@ -1,160 +1,86 @@
-"""Background ZeroMQ server exposing registered commands to external clients."""
+"""ZeroMQ server exposing registered functions to external clients."""
 
-import queue
-import threading
+from collections.abc import Callable
+from typing import Any
 
 import zmq
-from pydantic import ValidationError
+from pydantic import ValidationError, validate_call
 
-from src.core.config import (
-    REMOTE_CONTROL_COMMAND_ENDPOINT,
-    REMOTE_CONTROL_EVENT_ENDPOINT,
-)
+from src.core.config import REMOTE_CONTROL_ENDPOINT
 from src.core.logging import logger
-from src.core.remote.protocol import RemoteAck, RemoteEvent, RemoteRequest
-from src.core.remote.registry import RemoteRegistry
-
-# --------------------------------------------------------------------------------------------------
-# Constants
-# --------------------------------------------------------------------------------------------------
-POLL_INTERVAL_MS = 50
-SHUTDOWN_JOIN_TIMEOUT_S = 5.0
+from src.core.remote.protocol import RemoteRequest, RemoteResponse
 
 # --------------------------------------------------------------------------------------------------
 # Server
 # --------------------------------------------------------------------------------------------------
 class RemoteControlServer:
-    """Run a REP command socket and a PUB event socket on a private daemon thread.
+    """Answer remote requests on a REP socket whenever the consumer asks it to.
 
-    Admitted requests are queued for the consumer to pull with ``poll_command`` and run on
-    its own thread; outcomes flow back through ``publish``.
+    The server owns no thread: libzmq's I/O thread accepts connections and queues incoming
+    requests, and ``process_pending`` answers them on the caller's thread without blocking.
     """
 
-    def __init__(self, registry: RemoteRegistry) -> None:
-        self._command_endpoint = REMOTE_CONTROL_COMMAND_ENDPOINT
-        self._event_endpoint = REMOTE_CONTROL_EVENT_ENDPOINT
-        self._registry = registry
-        self._incoming: queue.Queue[RemoteRequest] = queue.Queue()
-        self._outgoing: queue.Queue[RemoteEvent] = queue.Queue()
-        self._stop = threading.Event()
-        self._thread: threading.Thread | None = None
+    def __init__(self, endpoint: str = REMOTE_CONTROL_ENDPOINT) -> None:
+        self._endpoint = endpoint
+        self._commands: dict[str, Callable[..., Any]] = {}
+        self._context = zmq.Context()
+        self._socket = self._context.socket(zmq.REP)
+        self._socket.setsockopt(zmq.LINGER, 0)
+        self._is_open = False
 
-    @property
-    def is_running(self) -> bool:
-        """Return whether the server thread is currently alive."""
-        return self._thread is not None and self._thread.is_alive()
+    def register(self, name: str, handler: Callable[..., Any]) -> None:
+        """Expose a function under a command name; its type hints validate the parameters."""
+        if name in self._commands:
+            raise ValueError(f"Command already registered: {name}")
+        self._commands[name] = validate_call(handler)
 
-    def start(self) -> None:
-        """Start the server thread; a no-op if it is already running."""
-        if self.is_running:
-            return
-        self._stop.clear()
-        self._thread = threading.Thread(
-            target=self._run,
-            name="remote-control-server",
-            daemon=True,
-        )
-        self._thread.start()
-
-    def stop(self) -> None:
-        """Signal the server thread to shut down and wait for it to finish."""
-        if self._thread is None:
-            return
-        self._stop.set()
-        self._thread.join(timeout=SHUTDOWN_JOIN_TIMEOUT_S)
-        self._thread = None
-
-    def poll_command(self) -> RemoteRequest | None:
-        """Return the next queued request, or ``None``; safe to call from any thread."""
+    def open(self) -> None:
+        """Bind the socket so clients may connect; requests queue until processed."""
         try:
-            return self._incoming.get_nowait()
-        except queue.Empty:
-            return None
-
-    def publish(self, event: RemoteEvent) -> None:
-        """Queue an event for the PUB socket; safe to call from any thread."""
-        self._outgoing.put(event)
-
-    # Thread body
-    def _run(self) -> None:
-        # Socket setup
-        context = zmq.Context()
-        command_socket = context.socket(zmq.REP)
-        event_socket = context.socket(zmq.PUB)
-        command_socket.setsockopt(zmq.LINGER, 0)
-        event_socket.setsockopt(zmq.LINGER, 0)
-        try:
-            command_socket.bind(self._command_endpoint)
-            event_socket.bind(self._event_endpoint)
+            self._socket.bind(self._endpoint)
         except zmq.ZMQError as exc:
-            logger.error(f"Remote control disabled, could not bind sockets: {exc}")
-            command_socket.close()
-            event_socket.close()
-            context.term()
+            logger.error(f"Remote control disabled, could not bind {self._endpoint}: {exc}")
             return
-        logger.info(
-            f"Remote control listening for commands on {self._command_endpoint} "
-            f"and events on {self._event_endpoint}"
-        )
-        # Poll loop
-        poller = zmq.Poller()
-        poller.register(command_socket, zmq.POLLIN)
-        try:
-            while not self._stop.is_set():
-                ready = dict(poller.poll(timeout=POLL_INTERVAL_MS))
-                if ready.get(command_socket) == zmq.POLLIN:
-                    self._handle_request(command_socket)
-                self._drain_outgoing(event_socket)
-        finally:
-            poller.unregister(command_socket)
-            command_socket.close()
-            event_socket.close()
-            context.term()
-            logger.info("Remote control stopped")
+        self._is_open = True
+        logger.info(f"Remote control listening on {self._endpoint}")
 
-    def _handle_request(self, command_socket: zmq.Socket) -> None:
-        # Inbound message
-        try:
-            raw = command_socket.recv_string()
-        except (zmq.ZMQError, UnicodeDecodeError):
-            logger.exception("Failed to receive remote command")
-            return
-        # Acknowledgement (REP requires exactly one reply per request)
-        ack, request = self._build_ack(raw)
-        try:
-            command_socket.send_string(ack.model_dump_json())
-        except zmq.ZMQError:
-            logger.exception("Failed to acknowledge remote command")
-            return
-        # Hand-off of an admitted command to the consumer
-        if request is not None:
-            self._incoming.put(request)
+    def close(self) -> None:
+        """Close the socket and release the ZeroMQ context."""
+        self._is_open = False
+        self._socket.close()
+        self._context.term()
 
-    def _build_ack(self, raw: str) -> tuple[RemoteAck, RemoteRequest | None]:
-        # Message parsing
+    def process_pending(self) -> None:
+        """Answer every queued request; call it periodically from the consumer's thread."""
+        if not self._is_open:
+            return
+        while True:
+            try:
+                raw = self._socket.recv(zmq.NOBLOCK)
+            except zmq.Again:
+                return
+            # REP requires exactly one reply per request, so _handle never raises
+            self._socket.send_string(self._handle(raw))
+
+    def _handle(self, raw: bytes) -> str:
+        # Request parsing
         try:
             request = RemoteRequest.model_validate_json(raw)
         except ValidationError as exc:
-            return RemoteAck(status="rejected", error=f"Malformed request: {exc}"), None
-        # Exposure check
-        if request.command not in self._registry.names():
-            return (
-                RemoteAck(
-                    id=request.id,
-                    status="rejected",
-                    error=f"Unknown or unexposed command: {request.command}",
-                ),
-                None,
-            )
-        return RemoteAck(id=request.id, status="accepted"), request
+            return self._failure(f"Malformed request: {exc}")
+        # Command lookup
+        handler = self._commands.get(request.command)
+        if handler is None:
+            return self._failure(f"Unknown command: {request.command}")
+        # Execution
+        try:
+            return RemoteResponse(ok=True, result=handler(**request.params)).model_dump_json()
+        except ValidationError as exc:
+            return self._failure(f"Invalid parameters for '{request.command}': {exc}")
+        except Exception as exc:
+            logger.exception(f"Remote command failed: {request.command}")
+            return RemoteResponse(ok=False, error=str(exc)).model_dump_json()
 
-    def _drain_outgoing(self, event_socket: zmq.Socket) -> None:
-        while True:
-            try:
-                event = self._outgoing.get_nowait()
-            except queue.Empty:
-                return
-            try:
-                event_socket.send_string(event.model_dump_json())
-            except zmq.ZMQError:
-                logger.exception("Failed to publish remote event")
+    def _failure(self, error: str) -> str:
+        logger.warning(f"Rejected remote request: {error}")
+        return RemoteResponse(ok=False, error=error).model_dump_json()

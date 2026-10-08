@@ -20,5 +20,4 @@ RELEASE_HTTP_USER_AGENT = "Oscilloscope-Studio-Updater"
 # --------------------------------------------------------------------------------------------------
 # Remote control
 # --------------------------------------------------------------------------------------------------
-REMOTE_CONTROL_COMMAND_ENDPOINT = "tcp://127.0.0.1:52731"
-REMOTE_CONTROL_EVENT_ENDPOINT = "tcp://127.0.0.1:52732"
+REMOTE_CONTROL_ENDPOINT = "tcp://127.0.0.1:52731"

@@ -1,17 +1,5 @@
-"""Hardware-agnostic remote-control transport, protocol, and command registry."""
+"""Hardware-agnostic remote-control transport and protocol."""
 
-from src.core.remote.control import RemoteControl
-from src.core.remote.registry import (
-    CommandParamsError,
-    RemoteError,
-    RemoteRegistry,
-    UnknownCommandError,
-)
+from src.core.remote.server import RemoteControlServer
 
-__all__ = [
-    "CommandParamsError",
-    "RemoteControl",
-    "RemoteError",
-    "RemoteRegistry",
-    "UnknownCommandError",
-]
+__all__ = ["RemoteControlServer"]

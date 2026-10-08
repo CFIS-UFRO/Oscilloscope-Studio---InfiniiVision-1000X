@@ -10,7 +10,7 @@ from src.core.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
 from src.core.logging import logger
 from src.core.paths import PYPROJECT_FILE_PATH
 from src.core.releases import get_pyproject_version
-from src.core.remote import RemoteControl
+from src.core.remote import RemoteControlServer
 from src.gui.remote.controller import RemoteControlController
 from src.gui.utils.resources import ICON_FILE_PATH
 from src.gui.windows.main_window import MainWindow
@@ -18,7 +18,7 @@ from src.gui.windows.main_window import MainWindow
 # --------------------------------------------------------------------------------------------------
 # Entry point
 # --------------------------------------------------------------------------------------------------
-def run_gui(remote_control: RemoteControl) -> int:
+def run_gui(remote_control: RemoteControlServer) -> int:
     """Create the Qt application, wire the main window and its services, and run the event loop."""
     # Qt application
     app = QApplication(sys.argv)
@@ -62,13 +62,15 @@ def _configure_shortcuts(app: QApplication, window: MainWindow) -> None:
 # --------------------------------------------------------------------------------------------------
 # Remote control
 # --------------------------------------------------------------------------------------------------
-def _configure_remote_control(remote_control: RemoteControl, window: MainWindow) -> None:
-    """Bridge the core remote-control channel to the GUI and register its commands."""
+def _configure_remote_control(remote_control: RemoteControlServer, window: MainWindow) -> None:
+    """Bridge the core remote-control server to the GUI and register its commands."""
     # GUI-side driver (kept alive by its Qt parent)
     RemoteControlController(remote_control, parent=window)
     # Command registrations
-    # Register remote commands here, e.g.:
-    # remote_control.register("some.command", lambda: ..., description="...")
+    # Register typed functions here; they run on the GUI thread and may touch widgets, e.g.:
+    # def set_timebase(scale: float) -> None:
+    #     window.timebase.setValue(scale)
+    # remote_control.register("timebase.set", set_timebase)
 
 # --------------------------------------------------------------------------------------------------
 # Lifecycle
