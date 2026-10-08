@@ -10,7 +10,6 @@ from src.core.config import APP_NAME, ORGANIZATION_NAME, RESTART_EXIT_CODE
 from src.core.logging import logger
 from src.core.paths import PYPROJECT_FILE_PATH
 from src.core.releases import get_pyproject_version
-from src.core.remote import RemoteControlServer
 from src.gui.remote.controller import RemoteControlController
 from src.gui.utils.resources import ICON_FILE_PATH
 from src.gui.windows.main_window import MainWindow
@@ -18,7 +17,7 @@ from src.gui.windows.main_window import MainWindow
 # --------------------------------------------------------------------------------------------------
 # Entry point
 # --------------------------------------------------------------------------------------------------
-def run_gui(remote_control: RemoteControlServer) -> int:
+def run_gui() -> int:
     """Create the Qt application, wire the main window and its services, and run the event loop."""
     # Qt application
     app = QApplication(sys.argv)
@@ -37,7 +36,7 @@ def run_gui(remote_control: RemoteControlServer) -> int:
     # Application shortcuts
     _configure_shortcuts(app, window)
     # Remote control
-    _configure_remote_control(remote_control, window)
+    _configure_remote_control(window)
     # Startup tasks
     window.showMaximized()
     QTimer.singleShot(0, window.check_for_updates_on_startup)
@@ -62,10 +61,10 @@ def _configure_shortcuts(app: QApplication, window: MainWindow) -> None:
 # --------------------------------------------------------------------------------------------------
 # Remote control
 # --------------------------------------------------------------------------------------------------
-def _configure_remote_control(remote_control: RemoteControlServer, window: MainWindow) -> None:
-    """Bridge the core remote-control server to the GUI and register its commands."""
+def _configure_remote_control(window: MainWindow) -> None:
+    """Start the remote-control server and register its commands."""
     # GUI-side driver (kept alive by its Qt parent)
-    RemoteControlController(remote_control, parent=window)
+    remote_control = RemoteControlController(parent=window)
     # Command registrations
     # Register typed functions here; they run on the GUI thread and may touch widgets, e.g.:
     # def set_timebase(scale: float) -> None:

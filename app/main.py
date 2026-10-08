@@ -2,7 +2,6 @@
 
 from src.core.config import APP_NAME
 from src.core.logging import init_logging, logger
-from src.core.remote import RemoteControlServer
 from src.core.tmp import clean_tmp_dir
 from src.gui.app import run_gui
 
@@ -17,14 +16,8 @@ def main() -> int:
     clean_tmp_dir()
     # Startup message
     logger.info(f"Starting {APP_NAME}...")
-    # Remote control extension
-    remote_control = RemoteControlServer()
-    remote_control.open()
     # Graphical interface
-    try:
-        return run_gui(remote_control)
-    finally:
-        remote_control.close()
+    return run_gui()
 
 # --------------------------------------------------------------------------------------------------
 # Entrypoint
